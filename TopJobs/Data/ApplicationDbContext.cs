@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TopJobs.Models;
 
 namespace TopJobs.Data
 {
@@ -18,7 +19,7 @@ namespace TopJobs.Data
         {
             base.OnModelCreating(builder);
             builder.HasDefaultSchema("Identity");
-            builder.Entity<IdentityUser>(entity =>
+            builder.Entity<ApplicationUser>(entity =>
             {
                 entity.ToTable(name: "User");
             });
