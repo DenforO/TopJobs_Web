@@ -13,6 +13,6 @@ namespace TopJobs.Models
         public int UsernameChangeLimit { get; set; } = 10;
         public byte[] ProfilePicture { get; set; }
         public string City { get; set; }
-        public int ReferenceId { get; set; }
+        public int PreferenceId { get; set; }
     }
 }
