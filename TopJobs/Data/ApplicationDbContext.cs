@@ -15,38 +15,57 @@ namespace TopJobs.Data
         {
         }
 
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<JobAd> JobAds { get; set; }
+        public DbSet<JobApplication> JobApplications { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.HasDefaultSchema("Identity");
+
             builder.Entity<ApplicationUser>(entity =>
             {
-                entity.ToTable(name: "User");
+                entity.ToTable(name: "User", schema: "Identity");
             });
             builder.Entity<IdentityRole>(entity =>
             {
-                entity.ToTable(name: "Role");
+                entity.ToTable(name: "Role", schema: "Identity");
             });
             builder.Entity<IdentityUserRole<string>>(entity =>
             {
-                entity.ToTable("UserRoles");
+                entity.ToTable("UserRoles", schema: "Identity");
             });
             builder.Entity<IdentityUserClaim<string>>(entity =>
             {
-                entity.ToTable("UserClaims");
+                entity.ToTable("UserClaims", schema: "Identity");
             });
             builder.Entity<IdentityUserLogin<string>>(entity =>
             {
-                entity.ToTable("UserLogins");
+                entity.ToTable("UserLogins", schema: "Identity");
             });
             builder.Entity<IdentityRoleClaim<string>>(entity =>
             {
-                entity.ToTable("RoleClaims");
+                entity.ToTable("RoleClaims", schema: "Identity");
             });
             builder.Entity<IdentityUserToken<string>>(entity =>
             {
-                entity.ToTable("UserTokens");
+                entity.ToTable("UserTokens", schema: "Identity");
             });
+
+            builder.Entity<Company>()
+                .HasMany(c => c.JobAds)
+                .WithOne(j => j.Company)
+                .IsRequired();
+            builder.Entity<JobApplication>()
+                .HasKey(jobApplication => new { jobApplication.JobAdId, jobApplication.UserId });
+            builder.Entity<JobApplication>()
+                .HasOne(jobApplication => jobApplication.JobAd)
+                .WithMany(j => j.JobApplications)
+                .HasForeignKey(jobApplication => jobApplication.JobAdId);
+            builder.Entity<JobApplication>()
+                .HasOne(jobApplication => jobApplication.User)
+                .WithMany(u => u.JobApplications)
+                .HasForeignKey(jobApplication => jobApplication.UserId);
         }
     }
 }
