@@ -18,6 +18,10 @@ namespace TopJobs.Data
         public DbSet<Company> Companies { get; set; }
         public DbSet<JobAd> JobAds { get; set; }
         public DbSet<JobApplication> JobApplications { get; set; }
+        public DbSet<EducationEntry> EducationEntries { get; set; }
+        public DbSet<EducationType> EducationTypes { get; set; }
+        public DbSet<JobExperienceEntry> JobExperienceEntries { get; set; }
+        public DbSet<PositionType> PositionTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -73,6 +77,14 @@ namespace TopJobs.Data
             builder.Entity<EducationEntry>()
                 .HasOne(e => e.EducationType)
                 .WithMany(et => et.EducationEntries)
+                .IsRequired();
+            builder.Entity<JobExperienceEntry>()
+                .HasOne(j => j.PositionType)
+                .WithMany(p => p.JobExperienceEntries)
+                .IsRequired();
+            builder.Entity<JobExperienceEntry>()
+                .HasOne(j => j.Company)
+                .WithMany(c => c.JobExperienceEntries)
                 .IsRequired();
                 
         }

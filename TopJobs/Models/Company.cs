@@ -17,5 +17,7 @@ namespace TopJobs.Models
         public string SiteUrl { get; set; }
         public bool Verified { get; set; }
         public ICollection<JobAd> JobAds { get; set; }
+        public ICollection<JobExperienceEntry> JobExperienceEntries { get; set; }
+
     }
 }
