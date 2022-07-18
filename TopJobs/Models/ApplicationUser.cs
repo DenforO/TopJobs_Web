@@ -15,5 +15,6 @@ namespace TopJobs.Models
         public string City { get; set; }
         public int PreferenceId { get; set; }
         public ICollection<JobApplication> JobApplications { get; set; }
+        public ICollection<EducationEntry> EducationEntries { get; set; }
     }
 }

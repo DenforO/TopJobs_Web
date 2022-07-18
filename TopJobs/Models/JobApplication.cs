@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace TopJobs.Models
         public JobAd JobAd { get; set; }
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
+        [Required]
         public DateTime DateApplied { get; set; }
     }
 }

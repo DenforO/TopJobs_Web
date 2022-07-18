@@ -66,6 +66,15 @@ namespace TopJobs.Data
                 .HasOne(jobApplication => jobApplication.User)
                 .WithMany(u => u.JobApplications)
                 .HasForeignKey(jobApplication => jobApplication.UserId);
+            builder.Entity<EducationEntry>()
+                .HasOne(e => e.User)
+                .WithMany(u => u.EducationEntries)
+                .IsRequired();
+            builder.Entity<EducationEntry>()
+                .HasOne(e => e.EducationType)
+                .WithMany(et => et.EducationEntries)
+                .IsRequired();
+                
         }
     }
 }
