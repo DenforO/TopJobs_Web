@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace TopJobs.Models
 {
-    public class PositionType
+    public class Technology
     {
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
-        public string Level { get; set; }
-        public ICollection<JobExperienceEntry> JobExperienceEntries { get; set; }
-        public ICollection<Review> Reviews { get; set; }
-        public ICollection<Preference> Preferences { get; set; }
+        public ICollection<TechnologyPreference> TechnologyPreferences { get; set; }
     }
 }

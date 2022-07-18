@@ -22,6 +22,10 @@ namespace TopJobs.Data
         public DbSet<EducationType> EducationTypes { get; set; }
         public DbSet<JobExperienceEntry> JobExperienceEntries { get; set; }
         public DbSet<PositionType> PositionTypes { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<Preference> Preferences { get; set; }
+        public DbSet<Technology> Technologies { get; set; }
+        public DbSet<TechnologyPreference> TechnologyPreferences { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -86,7 +90,32 @@ namespace TopJobs.Data
                 .HasOne(j => j.Company)
                 .WithMany(c => c.JobExperienceEntries)
                 .IsRequired();
-                
+            builder.Entity<JobExperienceEntry>()
+                .HasOne(j => j.User)
+                .WithMany(u => u.JobExperienceEntries)
+                .IsRequired();
+            builder.Entity<Review>()
+                .HasOne(r => r.Company)
+                .WithMany(c => c.Reviews)
+                .IsRequired();
+            builder.Entity<Review>()
+                .HasOne(r => r.PositionType)
+                .WithMany(p => p.Reviews)
+                .IsRequired();
+            builder.Entity<Preference>()
+                .HasOne(p => p.PositionType)
+                .WithMany(pt => pt.Preferences)
+                .IsRequired();
+            builder.Entity<TechnologyPreference>()
+                .HasKey(tp => new { tp.TechnologyId, tp.PreferenceId });
+            builder.Entity<TechnologyPreference>()
+                .HasOne(tp => tp.Technology)
+                .WithMany(t => t.TechnologyPreferences)
+                .HasForeignKey(tp => tp.TechnologyId);
+            builder.Entity<TechnologyPreference>()
+                .HasOne(tp => tp.Preference)
+                .WithMany(p => p.TechnologyPreferences)
+                .HasForeignKey(tp => tp.PreferenceId);
         }
     }
 }

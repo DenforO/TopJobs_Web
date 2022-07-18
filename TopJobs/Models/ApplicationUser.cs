@@ -16,5 +16,6 @@ namespace TopJobs.Models
         public int PreferenceId { get; set; }
         public ICollection<JobApplication> JobApplications { get; set; }
         public ICollection<EducationEntry> EducationEntries { get; set; }
+        public ICollection<JobExperienceEntry> JobExperienceEntries { get; set; }
     }
 }
