@@ -14,6 +14,7 @@ namespace TopJobs.Models
         public byte[] ProfilePicture { get; set; }
         public string City { get; set; }
         public int PreferenceId { get; set; }
+        public Preference Preference { get; set; }
         public ICollection<JobApplication> JobApplications { get; set; }
         public ICollection<EducationEntry> EducationEntries { get; set; }
         public ICollection<JobExperienceEntry> JobExperienceEntries { get; set; }

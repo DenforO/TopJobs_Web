@@ -116,6 +116,10 @@ namespace TopJobs.Data
                 .HasOne(tp => tp.Preference)
                 .WithMany(p => p.TechnologyPreferences)
                 .HasForeignKey(tp => tp.PreferenceId);
+            builder.Entity<JobAd>()
+                .HasOne(j => j.Preference)
+                .WithOne(p => p.JobAd)
+                .HasForeignKey<JobAd>(j => j.PreferenceId);
         }
     }
 }

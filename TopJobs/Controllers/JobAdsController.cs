@@ -22,7 +22,7 @@ namespace TopJobs.Controllers
         // GET: JobAds
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.JobAds.Include(j => j.Company);
+            var applicationDbContext = _context.JobAds.Include(j => j.Company).Include(j => j.Preference);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -36,6 +36,10 @@ namespace TopJobs.Controllers
 
             var jobAd = await _context.JobAds
                 .Include(j => j.Company)
+                .Include(j => j.Preference)
+                .Include(j => j.Preference.PositionType)
+                .Include(j => j.Preference.TechnologyPreferences)
+                .ThenInclude(tp => tp.Technology)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (jobAd == null)
             {
@@ -49,6 +53,7 @@ namespace TopJobs.Controllers
         public IActionResult Create()
         {
             ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
+            ViewData["PreferenceId"] = new SelectList(_context.Preferences, "Id", "Id");
             return View();
         }
 
@@ -66,6 +71,7 @@ namespace TopJobs.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", jobAd.CompanyId);
+            ViewData["PreferenceId"] = new SelectList(_context.Preferences, "Id", "Id", jobAd.PreferenceId);
             return View(jobAd);
         }
 
@@ -83,6 +89,7 @@ namespace TopJobs.Controllers
                 return NotFound();
             }
             ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", jobAd.CompanyId);
+            ViewData["PreferenceId"] = new SelectList(_context.Preferences, "Id", "Id", jobAd.PreferenceId);
             return View(jobAd);
         }
 
@@ -119,6 +126,7 @@ namespace TopJobs.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", jobAd.CompanyId);
+            ViewData["PreferenceId"] = new SelectList(_context.Preferences, "Id", "Id", jobAd.PreferenceId);
             return View(jobAd);
         }
 
@@ -132,6 +140,7 @@ namespace TopJobs.Controllers
 
             var jobAd = await _context.JobAds
                 .Include(j => j.Company)
+                .Include(j => j.Preference)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (jobAd == null)
             {

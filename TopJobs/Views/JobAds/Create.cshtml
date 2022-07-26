@@ -33,8 +33,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="PreferenceId" class="control-label"></label>
-                <input asp-for="PreferenceId" class="form-control" />
-                <span asp-validation-for="PreferenceId" class="text-danger"></span>
+                <select asp-for="PreferenceId" class ="form-control" asp-items="ViewBag.PreferenceId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="RequiredExperience" class="control-label"></label>

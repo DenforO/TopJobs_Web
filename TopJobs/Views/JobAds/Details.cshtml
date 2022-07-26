@@ -4,47 +4,97 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>@Model.Name</h1>
 
 <div>
-    <h4>JobAd</h4>
+    <h4>@Model.Company.Name</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+        <dt class="col-sm-2">
+            Position
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+        <dd class="col-sm-10">
+            @Model.Preference.PositionType.Level @Model.Preference.PositionType.Name
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
+        <dt class="col-sm-2">
+            Description
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
+        <dd class="col-sm-10">
+            @Model.Description
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Company)
+        <dt class="col-sm-2">
+            City
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Company.Name)
+        <dd class="col-sm-10">
+            @Model.Company.City
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DateSubmitted)
+        <dt class="col-sm-2">
+            Working Hours
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateSubmitted)
+        <dd class="col-sm-10">
+            @Model.Preference.WorkingHours
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PreferenceId)
+        @if (Model.Preference.FlexibleSchedule.HasValue)
+        {
+            <dt class="col-sm-2">
+                Flexible Schedule
+            </dt>
+            @if (Model.Preference.FlexibleSchedule == true)
+            {
+                <dd class="col-sm-10">
+                    Yes
+                </dd>
+            }
+            else if (Model.Preference.FlexibleSchedule == false)
+            {
+                <dd class="col-sm-10">
+                    No
+                </dd>
+            }
+        }
+        @if (Model.Preference.WorkFromHome.HasValue)
+        {
+            <dt class="col-sm-2">
+                Work From Home
+            </dt>
+            @if (Model.Preference.WorkFromHome == true)
+            {
+                <dd class="col-sm-10">
+                    Yes
+                </dd>
+            }
+            else if (Model.Preference.WorkFromHome == false)
+            {
+                <dd class="col-sm-10">
+                    No
+                </dd>
+            }
+        }
+        <dt class="col-sm-2">
+            Required Experience
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PreferenceId)
+        <dd class="col-sm-10">
+            @Model.RequiredExperience years
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RequiredExperience)
+        @if (Model.Preference.TechnologyPreferences.Any())
+        {
+            <dt class="col-sm-2">
+                Experience With
+            </dt>
+            <dd class="col-sm-10">
+                @foreach (var technologyPreference in Model.Preference.TechnologyPreferences)
+                {
+                    <p>
+                        @technologyPreference.Technology.Name
+                    </p>
+                }
+            </dd>
+        }
+        <dt class="col-sm-2">
+            Date Submitted
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RequiredExperience)
+        <dd class="col-sm-10">
+            @Model.DateSubmitted.ToShortDateString()
         </dd>
     </dl>
 </div>

@@ -17,6 +17,7 @@ namespace TopJobs.Models
         public Company Company { get; set; }
         public DateTime DateSubmitted { get; set; }
         public int PreferenceId { get; set; }
+        public Preference Preference { get; set; }
         public float RequiredExperience { get; set; }
         public ICollection<JobApplication> JobApplications { get; set; }
 

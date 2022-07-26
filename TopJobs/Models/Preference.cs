@@ -13,6 +13,9 @@ namespace TopJobs.Models
         public int? WorkingHours { get; set; }
         public bool? FlexibleSchedule { get; set; }
         public bool? WorkFromHome { get; set; }
+        public ApplicationUser User { get; set; }
+        public JobAd JobAd { get; set; }
         public ICollection<TechnologyPreference> TechnologyPreferences { get; set; }
+
     }
 }

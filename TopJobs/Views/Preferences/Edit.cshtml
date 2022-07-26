@@ -1,0 +1,81 @@
+﻿@model TopJobs.Models.Preference
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Preference</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="PositionTypeId" class="control-label"></label>
+                <select asp-for="PositionTypeId" class="form-control" asp-items="ViewBag.PositionTypeId"></select>
+                <span asp-validation-for="PositionTypeId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Position Level</label>
+                <select asp-for="PositionType.Level" name="positionTypeLevel" class="form-control">
+                    @foreach (var level in ViewBag.PositionTypeLevels)
+                    {
+                        <option value="@level">
+                            @level
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="PositionType.Level" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Position Name</label>
+                <select asp-for="PositionType.Name" name="positionTypeName" class="form-control">
+                    @foreach (var name in ViewBag.PositionTypeNames)
+                    {
+                        <option value="@name">
+                            @name
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="PositionType.Level" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkingHours" class="control-label"></label>
+                <input asp-for="WorkingHours" class="form-control" />
+                <span asp-validation-for="WorkingHours" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FlexibleSchedule" class="control-label"></label>
+                <select asp-for="FlexibleSchedule" class="form-control" >
+                    <option></option>
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+                <span asp-validation-for="FlexibleSchedule" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkFromHome" class="control-label"></label>
+                <select asp-for="WorkFromHome" class="form-control">
+                    <option></option>
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+                <span asp-validation-for="WorkFromHome" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
