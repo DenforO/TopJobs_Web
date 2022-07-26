@@ -10,8 +10,8 @@ using TopJobs.Data;
 namespace TopJobs.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220718103644_preferencesAndReviews")]
-    partial class preferencesAndReviews
+    [Migration("20220726112233_jobAdCapitalLetters")]
+    partial class jobAdCapitalLetters
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -329,6 +329,9 @@ namespace TopJobs.Data.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("DateSubmitted")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -340,11 +343,8 @@ namespace TopJobs.Data.Migrations
                     b.Property<int>("PreferenceId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("dateSubmitted")
-                        .HasColumnType("datetime2");
-
-                    b.Property<TimeSpan>("ExperienceRequired")
-                        .HasColumnType("time");
+                    b.Property<float>("RequiredExperience")
+                        .HasColumnType("real");
 
                     b.HasKey("Id");
 

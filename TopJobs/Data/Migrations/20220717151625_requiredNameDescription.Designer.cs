@@ -290,7 +290,7 @@ namespace TopJobs.Data.Migrations
                     b.Property<DateTime>("dateSubmitted")
                         .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("requiredExperience")
+                    b.Property<TimeSpan>("ExperienceRequired")
                         .HasColumnType("time");
 
                     b.HasKey("Id");
