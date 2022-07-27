@@ -85,6 +85,14 @@ namespace TopJobs.Controllers
             ViewData["PositionTypeId"] = new SelectList(_context.PositionTypes, "Id", "Name", preference.PositionTypeId);
             ViewData["PositionTypeLevels"] = _context.PositionTypes.GroupBy(p => p.Level).Select(group => group.Key);
             ViewData["PositionTypeNames"] = _context.PositionTypes.GroupBy(p => p.Name).Select(group => group.Key);
+            ViewData["Technologies"] = _context.Technologies.ToListAsync().Result;
+            ViewData["TechnologyPreferences"] = _context.TechnologyPreferences
+                                                                            .Where(x => x.PreferenceId == id)
+                                                                            .Join(_context.Technologies,
+                                                                                  tp => tp.TechnologyId,
+                                                                                  t => t.Id,
+                                                                                  (tp, t) => t.Name)
+                                                                            .ToListAsync().Result;
             return View(preference);
         }
 
@@ -93,7 +101,7 @@ namespace TopJobs.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,PositionTypeId,WorkingHours,FlexibleSchedule,WorkFromHome")] Preference preference, string positionTypeName, string positionTypeLevel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,PositionTypeId,WorkingHours,FlexibleSchedule,WorkFromHome")] Preference preference, string positionTypeName, string positionTypeLevel, string TechnologiesSelected)
         {
             if (id != preference.Id)
             {
@@ -115,6 +123,20 @@ namespace TopJobs.Controllers
                     preference.PositionTypeId = _context.PositionTypes
                                                     .Where(p => p.Level == positionTypeLevel && p.Name == positionTypeName)
                                                     .FirstOrDefault().Id;
+
+                    List<string> technologieNames = TechnologiesSelected.Split(";").ToList();
+                    technologieNames.RemoveAt(technologieNames.Count - 1);
+
+                    var oldTechnologyPreferences = _context.TechnologyPreferences.Where(x => x.PreferenceId == id);
+                    _context.TechnologyPreferences.RemoveRange(oldTechnologyPreferences);
+                    await _context.SaveChangesAsync();
+
+                    foreach (var technology in technologieNames)
+                    {
+                        int technologyId = _context.Technologies.Where(x => x.Name == technology).First().Id;
+                        _context.TechnologyPreferences.Add(new TechnologyPreference { PreferenceId = id, TechnologyId = technologyId });
+                        await _context.SaveChangesAsync();
+                    }
 
                     _context.Update(preference);
                     await _context.SaveChangesAsync();
