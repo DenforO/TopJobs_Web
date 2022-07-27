@@ -152,7 +152,7 @@ namespace TopJobs.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToRoute(new { action = "Index", controller = "Home" });
             }
             ViewData["PositionTypeId"] = new SelectList(_context.PositionTypes, "Id", "Name", preference.PositionTypeId);
             return View(preference);

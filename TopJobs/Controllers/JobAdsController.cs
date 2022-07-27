@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +51,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobAds/Create
+        [Authorize(Roles = "Employer")]
         public IActionResult Create()
         {
             ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
@@ -64,11 +66,19 @@ namespace TopJobs.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description,CompanyId,DateSubmitted,PreferenceId,RequiredExperience")] JobAd jobAd)
         {
+            jobAd.DateSubmitted = DateTime.Now;
+
             if (ModelState.IsValid)
             {
+                var newPreference = new Preference { Id = 0, PositionTypeId = 1 };
+                _context.Add(newPreference);
+                _context.SaveChanges();
+
+                jobAd.PreferenceId = newPreference.Id;
                 _context.Add(jobAd);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                return RedirectToRoute(new { action = "Edit", controller = "Preferences", id = newPreference.Id }); ;
             }
             ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", jobAd.CompanyId);
             ViewData["PreferenceId"] = new SelectList(_context.Preferences, "Id", "Id", jobAd.PreferenceId);
