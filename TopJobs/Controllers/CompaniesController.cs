@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TopJobs.Data;
 using TopJobs.Models;
+using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace TopJobs.Controllers
 {
@@ -160,6 +162,34 @@ namespace TopJobs.Controllers
         private bool CompanyExists(int id)
         {
             return _context.Companies.Any(e => e.Id == id);
+        }
+
+        public IActionResult Search(string name)
+        {
+            List<Company> companies = SearchCompanies(name);
+            return View(companies);
+        }
+
+        //[HttpPost]
+        //public IActionResult Seacrh(string name)
+        //{
+        //    List<Company> companies = SearchCompanies(name);
+        //    return View(companies);
+        //}
+
+        private static List<Company> SearchCompanies(string name)
+        {
+            List<Company> companies = new List<Company>();
+            string apiUrl = "https://localhost:44363/api/CompanyAPI";
+
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = client.GetAsync(apiUrl + string.Format("/GetCompanies?name={0}", name)).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                companies = JsonConvert.DeserializeObject<List<Company>>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            return companies;
         }
     }
 }
