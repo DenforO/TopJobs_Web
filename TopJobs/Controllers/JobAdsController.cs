@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TopJobs.Data;
+using TopJobs.Methods;
 using TopJobs.Models;
 
 namespace TopJobs.Controllers
@@ -14,17 +16,77 @@ namespace TopJobs.Controllers
     public class JobAdsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public JobAdsController(ApplicationDbContext context)
+        public JobAdsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: JobAds
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.JobAds.Include(j => j.Company).Include(j => j.Preference);
-            return View(await applicationDbContext.ToListAsync());
+            var jobAds = _context.JobAds
+                                    .Include(j => j.Company)
+                                    .Include(j => j.Preference)
+                                    .Include(j => j.Preference.PositionType)
+                                    .Include(j => j.Preference.TechnologyPreferences)
+                                    .ThenInclude(tp => tp.Technology);
+
+            var usr = GetCurrentUserAsync().Result;
+            var userPreference = _context.Preferences
+                                            .Include(p => p.PositionType)
+                                            .Include(p => p.TechnologyPreferences)
+                                            .ThenInclude(tp => tp.Technology)
+                                            .FirstOrDefault(x => x.Id == usr.PreferenceId);
+            foreach (var jobAd in jobAds)
+            {
+                jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
+            }
+            return View(await jobAds.ToListAsync());
+        }
+
+        public async Task<IActionResult> Charts()
+        {
+            var jobAds = _context.JobAds
+                                    .Include(j => j.Company)
+                                    .Include(j => j.Preference)
+                                    .Include(j => j.Preference.PositionType)
+                                    .Include(j => j.Preference.TechnologyPreferences)
+                                    .ThenInclude(tp => tp.Technology);
+
+            var technologyNumbers = new Dictionary<string, int>();
+
+            foreach (var technology in _context.Technologies)
+            {
+                technologyNumbers.Add(technology.Name, 0);
+            }
+
+            foreach (var jobAd in jobAds)
+            {
+                foreach (var technologyPreference in jobAd.Preference.TechnologyPreferences)
+                {
+                    technologyNumbers[technologyPreference.Technology.Name] += 1;
+                }
+            }
+
+            technologyNumbers = technologyNumbers.OrderByDescending(x => x.Value).Take(5).ToDictionary(x => x.Key, x => x.Value);
+
+            string dataString = "&chd=t:";
+            string labelsString = "&chl=";
+
+            foreach (var item in technologyNumbers)
+            {
+                dataString += item.Value.ToString() + ",";
+                labelsString += item.Key + ": "+ item.Value.ToString() + "|";
+            }
+
+            ViewBag.DataString = dataString;
+            ViewBag.LabelsString = labelsString;
+            ViewBag.ChartString = "https://image-charts.com/chart?cht=p3&chs=600x600&chf=ps0-0,lg,45,1E91D6,0.2,B1D2E7,1|ps0-1,lg,45,0072BB,0.2,009688,1|ps0-4,lg,45,E18335,0.2,ff9688,1|ps0-3,lg,45,E4CC37,0.2,ff9688,1|ps0-2,lg,45,8FC93A,0.2,BCDC8D,1&chan" + dataString + labelsString;
+
+            return View(await jobAds.ToListAsync());
         }
 
         // GET: JobAds/Details/5
@@ -175,5 +237,7 @@ namespace TopJobs.Controllers
         {
             return _context.JobAds.Any(e => e.Id == id);
         }
+
+        private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
     }
 }

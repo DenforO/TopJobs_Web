@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,6 +21,9 @@ namespace TopJobs.Models
         public Preference Preference { get; set; }
         public float RequiredExperience { get; set; }
         public ICollection<JobApplication> JobApplications { get; set; }
+
+        [NotMapped]
+        public int MatchingPercentage { set; get; }
 
     }
 }

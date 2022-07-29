@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace TopJobs.Controllers
     public class JobApplicationsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public JobApplicationsController(ApplicationDbContext context)
+        public JobApplicationsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: JobApplications
@@ -47,10 +50,12 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobApplications/Create
-        public IActionResult Create()
+        public IActionResult Create(int jobAdId)
         {
-            ViewData["JobAdId"] = new SelectList(_context.JobAds, "Id", "Description");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
+            ViewData["JobAdId"] = jobAdId;
+            var jobAd = _context.JobAds.Find(jobAdId);
+            ViewData["JobAdName"] = jobAd.Name;
+            ViewData["CompanyName"] = _context.Companies.Find(jobAd.CompanyId).Name;
             return View();
         }
 
@@ -59,19 +64,27 @@ namespace TopJobs.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("JobAdId,UserId,DateApplied")] JobApplication jobApplication)
+        public async Task<IActionResult> Create([Bind("JobAdId,UserId,DateApplied")] JobApplication jobApplication, int jobAdId, string userId)
         {
+            jobApplication.DateApplied = DateTime.Now;
+            jobApplication.JobAdId = jobAdId;
+            jobApplication.UserId = GetCurrentUserAsync().Result.Id;
+
             if (ModelState.IsValid)
             {
                 _context.Add(jobApplication);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("ApplicationSuccessful");
             }
             ViewData["JobAdId"] = new SelectList(_context.JobAds, "Id", "Description", jobApplication.JobAdId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", jobApplication.UserId);
             return View(jobApplication);
         }
 
+        public IActionResult ApplicationSuccessful()
+        {
+            return View();
+        }
         // GET: JobApplications/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -162,5 +175,7 @@ namespace TopJobs.Controllers
         {
             return _context.JobApplications.Any(e => e.JobAdId == id);
         }
+
+        private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
     }
 }

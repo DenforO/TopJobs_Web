@@ -114,6 +114,8 @@
 
     <script type="text/javascript">
 
+        window.onload = passSelectedTechnologies();
+
         function passSelectedTechnologies() {
             let selectedTechnologiesString = "";
             const checkedBoxes = document.querySelectorAll('input[name=mycheckboxes]:checked');

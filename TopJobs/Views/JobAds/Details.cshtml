@@ -7,7 +7,11 @@
 <h1>@Model.Name</h1>
 
 <div>
-    <h4><a asp-action="Details" asp-controller="Companies" asp-route-id="@Model.CompanyId">@Model.Company.Name</a></h4>
+    @if (Model.Company.Logo != null)
+    {
+        <img style=" display:inline;width:40px;height:40px; object-fit:cover; border-radius:10px" src="data:image/*;base64,@(Convert.ToBase64String(Model.Company.Logo))">
+    }
+    <h4 style="display: inline"><a asp-action="Details" asp-controller="Companies" asp-route-id="@Model.CompanyId">@Model.Company.Name</a></h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-4">
@@ -99,6 +103,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Create" asp-controller="JobApplications" asp-route-jobAdId="@Model.Id">Apply</a> |
     <a asp-action="Index">Back to List</a>
 </div>
