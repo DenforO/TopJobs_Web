@@ -78,14 +78,25 @@ namespace TopJobs.Controllers
             }
 
             var preference = await _context.Preferences.FindAsync(id);
+
             if (preference == null)
             {
                 return NotFound();
             }
+
             ViewData["PositionTypeId"] = new SelectList(_context.PositionTypes, "Id", "Name", preference.PositionTypeId);
-            ViewData["PositionTypeLevels"] = _context.PositionTypes.GroupBy(p => p.Level).Select(group => group.Key);
-            ViewData["PositionTypeNames"] = _context.PositionTypes.GroupBy(p => p.Name).Select(group => group.Key);
-            ViewData["Technologies"] = _context.Technologies.ToListAsync().Result;
+
+            ViewData["PositionTypeLevels"] = _context.PositionTypes
+                                                                .GroupBy(p => p.Level)
+                                                                .Select(group => group.Key);
+
+            ViewData["PositionTypeNames"] = _context.PositionTypes
+                                                            .GroupBy(p => p.Name)
+                                                            .Select(group => group.Key);
+
+            ViewData["Technologies"] = _context.Technologies
+                                                        .ToListAsync().Result;
+
             ViewData["TechnologyPreferences"] = _context.TechnologyPreferences
                                                                             .Where(x => x.PreferenceId == id)
                                                                             .Join(_context.Technologies,
