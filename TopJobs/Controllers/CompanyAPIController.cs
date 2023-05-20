@@ -30,7 +30,12 @@ namespace TopJobs.Controllers
         [HttpGet]
         public IEnumerable<Company> GetCompanies(string name)
         {
-            return _context.Companies.Where(x => x.Name.StartsWith(name) || string.IsNullOrEmpty(name)).Include(x => x.JobAds).ToList();
+            return _context.Companies
+                                .Where(x => x.Name.StartsWith(name) || string.IsNullOrEmpty(name))
+                                .Include(x => x.JobAds)
+                                .ThenInclude(j => j.Preference)
+                                .ThenInclude(p => p.PositionType)
+                                .ToList();
         }
     }
 }

@@ -33,7 +33,10 @@ namespace TopJobs
                     .AddEntityFrameworkStores<ApplicationDbContext>()
                     .AddDefaultUI()
                     .AddDefaultTokenProviders();
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
             services.AddRazorPages().AddRazorRuntimeCompilation();
         }
 
