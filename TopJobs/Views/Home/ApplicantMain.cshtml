@@ -3,6 +3,11 @@
 @{
     ViewData["Title"] = "ApplicantMain";
 }
+<div id="content"></div>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/16.13.0/umd/react.development.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.13.0/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.min.js"></script>
+<script src="@Url.Content("~/js/Tutorial.jsx")"></script>
 <div class="text-center">
     <h1 class="display-4">Welcome to <b>Top Jobs</b>, @Model.FirstName!</h1>
     <button class="btn-lg" style="margin:60px" onclick="window.location.href = '../Preferences/Edit/@Model.PreferenceId'">Edit Preferences</button>
