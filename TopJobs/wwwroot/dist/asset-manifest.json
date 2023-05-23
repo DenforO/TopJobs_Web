@@ -1,0 +1,13 @@
+{
+  "files": {
+    "0.042f2015.js": "/dist/0.042f2015.js",
+    "main.js": "/dist/main.67cea052.js",
+    "runtime.js": "/dist/runtime.315705f7.js",
+    "vendor.js": "/dist/vendor.50cbf625.js"
+  },
+  "entrypoints": [
+    "/dist/main.67cea052.js",
+    "/dist/runtime.315705f7.js",
+    "/dist/vendor.50cbf625.js"
+  ]
+}
