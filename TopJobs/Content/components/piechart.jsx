@@ -2,11 +2,13 @@
 import { PieChart, Pie, Sector } from "recharts";
 
 const data = [
-    { name: "Group A", value: 400 },
-    { name: "Group B", value: 300 },
-    { name: "Group C", value: 300 },
-    { name: "Group D", value: 200 }
+    { name: "JavaScript", value: 192 },
+    { name: "Java", value: 145 },
+    { name: "C#", value: 103 },
+    { name: "Python", value: 102 }
 ];
+
+const dataString = '[{  "name": "JavaScript", "value": 192 },{ "name": "Java", "value": 155 },{ "name": "C#", "value": 103 },{ "name": "Python", "value": 100 }]'
 
 const renderActiveShape = (props) => {
     const RADIAN = Math.PI / 180;
@@ -67,7 +69,7 @@ const renderActiveShape = (props) => {
                 y={ey}
                 textAnchor={textAnchor}
                 fill="#333"
-            >{`PV ${value}`}</text>
+            >{`${value}`}</text>
             <text
                 x={ex + (cos >= 0 ? 1 : -1) * 12}
                 y={ey}
@@ -81,22 +83,26 @@ const renderActiveShape = (props) => {
     );
 };
 
-export default function PieChartDemo() {
+export default function PieChartDemo(props) {
     const [activeIndex, setActiveIndex] = useState(0);
-    const onPieEnter = (_, index) => {
-        setActiveIndex(index);
-    }
+    const onPieEnter = useCallback(
+        (_, index) => {
+            setActiveIndex(index);
+        },
+        [setActiveIndex]
+    );
 
+    const dataObj = JSON.parse(props.data);
     return (
-        <PieChart width={400} height={400}>
+        <PieChart width={600} height={400}>
             <Pie
                 activeIndex={activeIndex}
                 activeShape={renderActiveShape}
-                data={data}
-                cx={200}
+                data={dataObj}
+                cx={300}
                 cy={200}
-                innerRadius={60}
-                outerRadius={80}
+                innerRadius={100}
+                outerRadius={130}
                 fill="#8884d8"
                 dataKey="value"
                 onMouseEnter={onPieEnter}

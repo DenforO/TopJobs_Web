@@ -1,13 +1,13 @@
 {
   "files": {
-    "0.042f2015.js": "/dist/0.042f2015.js",
-    "main.js": "/dist/main.1d7be0ae.js",
-    "runtime.js": "/dist/runtime.315705f7.js",
-    "vendor.js": "/dist/vendor.50cbf625.js"
+    "0.js": "/dist/0.js",
+    "main.js": "/dist/main.js",
+    "runtime.js": "/dist/runtime.js",
+    "vendor.js": "/dist/vendor.js"
   },
   "entrypoints": [
-    "/dist/main.1d7be0ae.js",
-    "/dist/runtime.315705f7.js",
-    "/dist/vendor.50cbf625.js"
+    "/dist/main.js",
+    "/dist/runtime.js",
+    "/dist/vendor.js"
   ]
 }

@@ -1,6 +1,4 @@
 ﻿@model TopJobs.Models.ApplicationUser
-@using React.AspNet
-@using React.RenderFunctions;
 
 @{
     ViewData["Title"] = "ApplicantMain";
@@ -9,7 +7,6 @@
     <h1 class="display-4">Welcome to <b>Top Jobs</b>, @Model.FirstName!</h1>
     <button class="btn-lg" style="margin:60px" onclick="window.location.href = '../Preferences/Edit/@Model.PreferenceId'">Edit Preferences</button>
 </div>
-@Html.React("Components.PieChartDemo", "")
 <div class="text-center">
     <button class="btn-lg" style="margin:10px" onclick="window.location.href = '../JobAds'">Search For Jobs</button>
 </div>
