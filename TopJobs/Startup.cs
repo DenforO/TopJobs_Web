@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using JavaScriptEngineSwitcher.V8;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using React.AspNet;
+using TopJobs.Services;
 
 namespace TopJobs
 {
@@ -48,6 +49,8 @@ namespace TopJobs
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
             services.AddRazorPages().AddRazorRuntimeCompilation();
+            services.AddMemoryCache();
+            services.AddTransient<ITrendsService, TrendsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

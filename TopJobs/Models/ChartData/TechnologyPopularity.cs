@@ -7,7 +7,7 @@ namespace TopJobs.Models.ChartData
 {
     public class TechnologyPopularity
     {
-        public string TechnologyName { get; set; }
-        public int JobAdsNumber { get; set; }
+        public string Name { get; set; }
+        public int Value { get; set; }
     }
 }

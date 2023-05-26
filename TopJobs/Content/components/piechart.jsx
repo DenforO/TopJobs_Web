@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useState } from "react";
+﻿import React, { useCallback, useState, useEffect } from "react";
 import { PieChart, Pie, Sector } from "recharts";
 
 const data = [
@@ -85,6 +85,21 @@ const renderActiveShape = (props) => {
 
 export default function PieChartDemo(props) {
     const [activeIndex, setActiveIndex] = useState(0);
+    const [data, setData] = useState(null);
+
+    const fetchData = () => {
+        fetch("https://localhost:44363/api/Trends")
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                setData(data)
+            })
+    }
+    useEffect(() => {
+        fetchData()
+    }, [])
+
     const onPieEnter = useCallback(
         (_, index) => {
             setActiveIndex(index);
@@ -92,13 +107,12 @@ export default function PieChartDemo(props) {
         [setActiveIndex]
     );
 
-    const dataObj = JSON.parse(props.data);
     return (
         <PieChart width={600} height={400}>
             <Pie
                 activeIndex={activeIndex}
                 activeShape={renderActiveShape}
-                data={dataObj}
+                data={data}
                 cx={300}
                 cy={200}
                 innerRadius={100}
