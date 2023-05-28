@@ -46,6 +46,12 @@ namespace TopJobs.Controllers
             return View();
         }
 
+        public IActionResult Profile(string userId)
+        {
+            ViewBag.User = _userManager.FindByIdAsync(userId).Result;
+            return View();
+        }
+
         [Authorize(Roles = "Admin")]
         public IActionResult AdminMain()
         {
