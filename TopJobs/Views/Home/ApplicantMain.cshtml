@@ -5,14 +5,17 @@
 }
 <div class="text-center">
     <h1 class="display-4">Welcome to <b>Top Jobs</b>, @Model.FirstName!</h1>
-    <button class="btn-lg" style="margin:60px" onclick="window.location.href = '../Preferences/Edit/@Model.PreferenceId'">Edit Preferences</button>
-</div>
-<div>
-    <a asp-controller="EducationEntries" asp-action="Index" asp-route-userId="@Model.Id">My education entries</a>
+    <button class="btn-lg" style="margin:30px" onclick="window.location.href = '../Preferences/Edit/@Model.PreferenceId'">Edit Preferences</button>
 </div>
 <div class="text-center">
-    <button class="btn-lg" style="margin:10px" onclick="window.location.href = '../JobAds'">Search For Jobs</button>
+    <button class="btn-lg" style="margin:30px" onclick="window.location.href = '../EducationEntries?userId=@Model.Id'">My education</button>
 </div>
 <div class="text-center">
-    <button class="btn-lg" style="margin:60px" onclick="window.location.href = '../JobAds/Charts'">Open the Charts</button>
+    <button class="btn-lg" style="margin:30px" onclick="window.location.href = '../JobExperienceEntries?userId=@Model.Id'">My job experience</button>
+</div>
+<div class="text-center">
+    <button class="btn-lg" style="margin:30px" onclick="window.location.href = '../JobAds'">Search For Jobs</button>
+</div>
+<div class="text-center">
+    <button class="btn-lg" style="margin:30px" onclick="window.location.href = '../JobAds/Charts'">Open the Charts</button>
 </div>

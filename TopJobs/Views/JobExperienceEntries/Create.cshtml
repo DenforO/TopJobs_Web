@@ -1,0 +1,81 @@
+﻿@model TopJobs.Models.JobExperienceEntry
+
+@{
+    ViewData["Title"] = "Create";
+}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+<h1>Job experience</h1>
+
+<h4>Add new</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group" style="display:none">
+                <label asp-for="UserId" class="control-label"></label>
+                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompanyId" class="control-label">Company</label>
+                <input type="text" asp-for="CompanyId" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="DateStarted" class="control-label">Start</label>
+                <input type="date" asp-for="DateStarted" class="form-control" />
+                <span asp-validation-for="DateStarted" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateFinished" class="control-label">End</label>
+                <input type="date" asp-for="DateFinished" class="form-control" />
+                <span asp-validation-for="DateFinished" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PositionTypeId" class="control-label">Position</label>
+                <select asp-for="PositionTypeId" class="form-control" asp-items="ViewBag.PositionTypeId"></select>
+            </div>
+            <div class="form-group form-check" style="display:none">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Verified" /> @Html.DisplayNameFor(model => model.Verified)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#CompanyId").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "/api/CompanyAPI/GetCompaniesPrefix",
+                        type: "POST",
+                        dataType: "json",
+                        data: { Prefix: request.term },
+                        success: function (data) {
+                            response($.map(data, function (item) {
+                                return { label: item.Name, value: item.Name };
+                            }))
+
+                        }
+                    })
+                },
+                messages: {
+                    noResults: "", results: ""
+                }
+            });
+        })
+    </script>
+}
