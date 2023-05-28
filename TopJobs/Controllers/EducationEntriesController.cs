@@ -127,7 +127,7 @@ namespace TopJobs.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { userId = educationEntry.UserId });
             }
             ViewData["EducationTypeId"] = new SelectList(_context.EducationTypes, "Id", "Name", educationEntry.EducationTypeId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", educationEntry.UserId);
@@ -162,7 +162,7 @@ namespace TopJobs.Controllers
             var educationEntry = await _context.EducationEntries.FindAsync(id);
             _context.EducationEntries.Remove(educationEntry);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { userId = educationEntry.UserId });
         }
 
         private bool EducationEntryExists(int id)
