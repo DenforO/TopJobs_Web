@@ -30,6 +30,17 @@ namespace TopJobs.Controllers
             return View(await applicationDbContext.Where(x => x.UserId == userId).OrderBy(x => x.DateStarted).ToListAsync());
         }
 
+        [HttpPost]
+        public JsonResult CompaniesPrefix(string prefix)
+        {
+            //Note : you can bind same list from database  
+            List<Company> allCompanies = _context.Companies.ToList();
+
+            var results = allCompanies.Where(x => x.Name.StartsWith(prefix)).Select(x => new { Name = x.Name, Id = x.Id }).ToList();
+
+            return Json(results, System.Web.Mvc.JsonRequestBehavior.AllowGet);
+        }
+
         // GET: JobExperienceEntries/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -66,10 +77,12 @@ namespace TopJobs.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,CompanyId,DateStarted,DateFinished,PositionTypeId,Verified")] JobExperienceEntry jobExperienceEntry)
+        public async Task<IActionResult> Create([Bind("Id,UserId,CompanyId,DateStarted,DateFinished,PositionTypeId,Verified")] JobExperienceEntry jobExperienceEntry, string positionTypeName, string positionTypeLevel)
         {
             if (ModelState.IsValid)
             {
+                jobExperienceEntry.PositionType = FindOrCreatePositionType(positionTypeName, positionTypeLevel);
+
                 _context.Add(jobExperienceEntry);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index), new { userId = jobExperienceEntry.UserId });
@@ -78,6 +91,19 @@ namespace TopJobs.Controllers
             ViewData["PositionTypeId"] = new SelectList(_context.PositionTypes, "Id", "Name", jobExperienceEntry.PositionTypeId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", jobExperienceEntry.UserId);
             return View(jobExperienceEntry);
+        }
+
+        private PositionType FindOrCreatePositionType(string positionTypeName, string positionTypeLevel)
+        {
+            foreach (var positionType in _context.PositionTypes)
+            {
+                if (positionType.Name == positionTypeName && positionType.Level == positionTypeLevel)
+                {
+                    return positionType;
+                }
+            }
+            return _context.PositionTypes.Add(new PositionType { Level = positionTypeLevel, Name = positionTypeName }).Entity;
+
         }
 
         // GET: JobExperienceEntries/Edit/5
@@ -93,6 +119,7 @@ namespace TopJobs.Controllers
             {
                 return NotFound();
             }
+            ViewBag.PositionTypeName = _context.PositionTypes.Find(jobExperienceEntry.PositionTypeId).Name;
             ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", jobExperienceEntry.CompanyId);
             ViewData["PositionTypeId"] = new SelectList(_context.PositionTypes, "Id", "Name", jobExperienceEntry.PositionTypeId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", jobExperienceEntry.UserId);
@@ -104,7 +131,7 @@ namespace TopJobs.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,CompanyId,DateStarted,DateFinished,PositionTypeId,Verified")] JobExperienceEntry jobExperienceEntry)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,CompanyId,DateStarted,DateFinished,PositionTypeId,Verified")] JobExperienceEntry jobExperienceEntry, string positionTypeName, string positionTypeLevel)
         {
             if (id != jobExperienceEntry.Id)
             {
@@ -115,6 +142,7 @@ namespace TopJobs.Controllers
             {
                 try
                 {
+                    jobExperienceEntry.PositionType = FindOrCreatePositionType(positionTypeName, positionTypeLevel);
                     _context.Update(jobExperienceEntry);
                     await _context.SaveChangesAsync();
                 }

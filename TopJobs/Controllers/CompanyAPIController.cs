@@ -37,5 +37,17 @@ namespace TopJobs.Controllers
                                 .ThenInclude(p => p.PositionType)
                                 .ToList();
         }
+
+        [Route("GetCompaniesPrefix")]
+        [HttpPost]
+        public IEnumerable<object> GetCompaniesPrefix([FromBody]string prefix)
+        {
+            //Note : you can bind same list from database  
+            List<Company> allCompanies = _context.Companies.ToList();
+
+            var results = allCompanies.Where(x => x.Name.StartsWith(prefix)).Select(x => new { Name = x.Name, Id = x.Id }).ToList();
+
+            return results;
+        }
     }
 }

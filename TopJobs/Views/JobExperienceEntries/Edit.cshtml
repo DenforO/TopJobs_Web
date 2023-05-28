@@ -13,32 +13,40 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
+            <div class="form-group" style="display:none">
                 <label asp-for="UserId" class="control-label"></label>
                 <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
                 <span asp-validation-for="UserId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CompanyId" class="control-label"></label>
+                <label asp-for="CompanyId" class="control-label">Company</label>
                 <select asp-for="CompanyId" class="form-control" asp-items="ViewBag.CompanyId"></select>
                 <span asp-validation-for="CompanyId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DateStarted" class="control-label"></label>
-                <input asp-for="DateStarted" class="form-control" />
+                <label class="control-label">Position</label>
+                <input type="text" name="positionTypeName" class="form-control" value="@ViewBag.PositionTypeName">
+            </div>
+            <div class="form-group">
+                <label class="control-label">Position Level</label>
+                <select name="positionTypeLevel" class="form-control">
+                    <option selected="selected">-</option>
+                    <option>Junior</option>
+                    <option>Mid</option>
+                    <option>Senior</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateStarted" class="control-label">Start</label>
+                <input type="date" asp-for="DateStarted" class="form-control" />
                 <span asp-validation-for="DateStarted" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DateFinished" class="control-label"></label>
-                <input asp-for="DateFinished" class="form-control" />
+                <label asp-for="DateFinished" class="control-label">End</label>
+                <input type="date" asp-for="DateFinished" class="form-control" />
                 <span asp-validation-for="DateFinished" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="PositionTypeId" class="control-label"></label>
-                <select asp-for="PositionTypeId" class="form-control" asp-items="ViewBag.PositionTypeId"></select>
-                <span asp-validation-for="PositionTypeId" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
+            <div class="form-group form-check" style="display:none">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="Verified" /> @Html.DisplayNameFor(model => model.Verified)
                 </label>

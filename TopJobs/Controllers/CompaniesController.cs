@@ -29,12 +29,12 @@ namespace TopJobs.Controllers
             return View(await _context.Companies.ToListAsync());
         }
         [HttpPost]
-        public JsonResult Index(string prefix)
+        public JsonResult Index2(string prefix)
         {
             //Note : you can bind same list from database  
             List<Company> allCompanies = _context.Companies.ToList();
 
-            var results = allCompanies.Where(x => x.Name.StartsWith(prefix)).Select(x => new { Name = x.Name, Id = x.Id}).ToList();
+            var results = allCompanies.Where(x => x.Name.StartsWith(prefix)).Select(x => new { Name = x.Name, Id = x.Id.ToString()}).ToList();
 
             return Json(results, System.Web.Mvc.JsonRequestBehavior.AllowGet);
         }

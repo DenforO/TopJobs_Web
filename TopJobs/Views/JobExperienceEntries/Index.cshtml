@@ -25,6 +25,9 @@
                 @Html.DisplayNameFor(model => model.PositionType)
             </th>
             <th>
+                Level
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Verified)
             </th>
             <th></th>
@@ -37,20 +40,30 @@
                 @Html.DisplayFor(modelItem => item.Company.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DateStarted)
+                @(item.DateStarted.ToShortDateString())
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DateFinished)
+                @{ if (item.DateFinished != null)
+                    {
+                        @(item.DateFinished.Value.Date.ToShortDateString());
+                    }
+                    else
+                    {
+                        @("Ongoing")
+                    }
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PositionType.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PositionType.Level)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Verified)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
