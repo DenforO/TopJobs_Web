@@ -18,7 +18,9 @@ namespace TopJobs.Models
         public int EducationTypeId { get; set; }
         public EducationType EducationType { get; set; }
         [Required]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd-MM-yy}")]
         public DateTime DateStarted { get; set; }
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd-MM-yy}")]
         public DateTime? DateFinished { get; set; }
     }
 }

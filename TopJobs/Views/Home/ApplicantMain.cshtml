@@ -7,6 +7,9 @@
     <h1 class="display-4">Welcome to <b>Top Jobs</b>, @Model.FirstName!</h1>
     <button class="btn-lg" style="margin:60px" onclick="window.location.href = '../Preferences/Edit/@Model.PreferenceId'">Edit Preferences</button>
 </div>
+<div>
+    <a asp-controller="EducationEntries" asp-action="Index" asp-route-userId="@Model.Id">My education entries</a>
+</div>
 <div class="text-center">
     <button class="btn-lg" style="margin:10px" onclick="window.location.href = '../JobAds'">Search For Jobs</button>
 </div>

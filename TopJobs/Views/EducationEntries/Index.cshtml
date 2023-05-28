@@ -1,0 +1,60 @@
+﻿@model IEnumerable<TopJobs.Models.EducationEntry>
+
+@{
+    ViewData["Title"] = "Index";
+    ViewBag.Title = "Index";
+}
+
+<h1>Education entries</h1>
+
+<p>
+    <a asp-action="Create" asp-route-userId="@ViewBag.User.Id">Add New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                School
+            </th>
+            <th>
+                Education Type
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                Started
+            </th>
+            <th>
+                Finished
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.School)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EducationType.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @(item.DateStarted.ToShortDateString())
+            </td>
+            <td>
+                @(item.DateFinished.Value.Date.ToShortDateString())
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
