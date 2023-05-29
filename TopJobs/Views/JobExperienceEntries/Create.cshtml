@@ -8,7 +8,7 @@
 
 <h1>Job experience</h1>
 
-<h4>Add new</h4>
+<h4>Add new entry</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -18,11 +18,11 @@
                 <label asp-for="UserId" class="control-label"></label>
                 <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
             </div>
-            <div class="form-group">
-                <label asp-for="CompanyId" class="control-label"></label>
-                <select asp-for="CompanyId" class="form-control" asp-items="ViewBag.CompanyId"></select>
-                <span asp-validation-for="CompanyId" class="text-danger"></span>
-            </div>
+            @*<div class="form-group">
+            <label asp-for="CompanyId" class="control-label">Company</label>
+            <select asp-for="CompanyId" class="form-control" asp-items="ViewBag.CompanyId"></select>
+            <span asp-validation-for="CompanyId" class="text-danger"></span>
+        </div>*@
             <div class="form-group">
                 <label class="control-label">Position</label>
                 <input type="text" name="positionTypeName" class="form-control">
@@ -36,10 +36,14 @@
                     <option>Senior</option>
                 </select>
             </div>
-            @*<div class="form-group">
-            <label asp-for="CompanyId" class="control-label">Company</label>
-            <input type="text" asp-for="CompanyId" class="form-control" />
-        </div>*@
+            <div class="form-group" style="display:none">
+                <label asp-for="CompanyId" class="control-label">Company</label>
+                <input type="text" asp-for="CompanyId" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Company</label>
+                <input type="text" id="CompanyName" class="form-control" />
+            </div>
             <div class="form-group">
                 <label asp-for="DateStarted" class="control-label">Start</label>
                 <input type="date" asp-for="DateStarted" class="form-control" />
@@ -76,27 +80,34 @@
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $("#Company").autocomplete({
+            $("#CompanyName").autocomplete({
                 source: function (request, response) {
                     $.ajax({
-                        url: "/Companies/Index2",
-                        type: "POST",
+                        url: '/api/companyapi/search',
+                        headers: {
+                            "RequestVerificationToken":
+                                $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        data: { "term": request.term },
                         dataType: "json",
-                        data: { prefix: request.term },
                         success: function (data) {
-                            response($.map(data, function (val, item) {
-                                return { label: val.Name, value: val.Name, companyId: val.Id };
+                            response($.map(data, function (item) {
+                                return { value: item.name, label: item.name, companyId: item.id };
                             }))
                         },
-                        error: function (xhr) {
-                            alert(xhr.status)
+                        error: function (xhr, textStatus, error) {
+                            alert(xhr.statusText);
+                        },
+                        failure: function (response) {
+                            alert("failure " + response.responseText);
                         }
-                    })
+                    });
                 },
-                select: function (event, ui) {
-                    $("#CompanyId").val(ui.item.customerId);
-                }
+                select: function (e, i) {
+                    $("#CompanyId").val(i.item.companyId);
+                },
+                minLength: 3
             });
-        })
+        });
     </script>
 }

@@ -88,7 +88,7 @@ export default function PieChartDemo(props) {
     const [data, setData] = useState(null);
 
     const fetchData = () => {
-        fetch("https://localhost:44363/api/Trends")
+        fetch(window.location.origin + "/api/Trends")
             .then(response => {
                 return response.json()
             })

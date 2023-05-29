@@ -49,5 +49,24 @@ namespace TopJobs.Controllers
 
             return results;
         }
+
+        [Produces("application/json")]
+        [HttpGet("search")]
+        [Route("Search")]
+        public async Task<IActionResult> Search()
+        {
+            try
+            {
+                string term = HttpContext.Request.Query["term"].ToString();
+
+                var names = _context.Companies.Where(p => p.Name.Contains(term))
+                        .Select(p => new { p.Id, p.Name}).ToListAsync();
+                return Ok(await names);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
     }
 }
