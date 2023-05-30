@@ -53,7 +53,7 @@ namespace TopJobs.Controllers
         [Produces("application/json")]
         [HttpGet("search")]
         [Route("Search")]
-        public async Task<IActionResult> Search()
+        public async Task<IActionResult> Search() // for autocomplete
         {
             try
             {

@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TopJobs.Data;
 using TopJobs.Models;
+using TopJobs.ViewModels;
 
 namespace TopJobs.Controllers
 {
@@ -16,10 +18,12 @@ namespace TopJobs.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
-        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager)
+        private readonly ApplicationDbContext _context;
+        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _logger = logger;
             _userManager = userManager;
+            _context = context;
         }
 
         public async Task<IActionResult> IndexAsync()
@@ -48,7 +52,23 @@ namespace TopJobs.Controllers
 
         public IActionResult Profile(string userId)
         {
-            ViewBag.User = _userManager.FindByIdAsync(userId).Result;
+            var user = _userManager.FindByIdAsync(userId).Result;
+            var userEducation = _context.EducationEntries
+                                                    .Where(e => e.UserId == userId)
+                                                    .Include(e => e.EducationType)
+                                                    .OrderByDescending(e => e.DateStarted)
+                                                    .Select(e => new EducationViewModel(e))
+                                                    .ToList();
+            var userExperience = _context.JobExperienceEntries
+                                                    .Include(j => j.PositionType)
+                                                    .Include(j => j.Company)
+                                                    .OrderByDescending(j => j.DateStarted)
+                                                    .Where(j => j.UserId == userId)
+                                                    .Select(j => new JobExperienceViewModel(j))
+                                                    .ToList();
+            ViewBag.Education = userEducation;
+            ViewBag.Experience = userExperience;
+            ViewBag.User = user;
             return View();
         }
 
