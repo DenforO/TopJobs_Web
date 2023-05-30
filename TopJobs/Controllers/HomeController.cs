@@ -66,9 +66,18 @@ namespace TopJobs.Controllers
                                                     .Where(j => j.UserId == userId)
                                                     .Select(j => new JobExperienceViewModel(j))
                                                     .ToList();
+
+            var technologies = _context.TechnologyPreferences
+                                                    .Where(tp => tp.PreferenceId == user.PreferenceId)
+                                                    .Include(tp => tp.Technology)
+                                                    .Select(tp => tp.Technology.Name)
+                                                    .Distinct()
+                                                    .ToList();
+            ViewBag.User = user;
             ViewBag.Education = userEducation;
             ViewBag.Experience = userExperience;
-            ViewBag.User = user;
+            ViewBag.CurrentPosition = userExperience[0].Timeframe.Contains("Present") ? userExperience[0].Position : string.Empty;
+            ViewBag.Technologies = technologies;
             return View();
         }
 
