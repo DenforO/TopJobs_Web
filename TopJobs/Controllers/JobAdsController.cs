@@ -116,7 +116,14 @@ namespace TopJobs.Controllers
         [Authorize(Roles = "Employer")]
         public IActionResult Create()
         {
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
+            var currentUser = GetCurrentUserAsync().Result;
+
+            var availableCompanies = _context.JobExperienceEntries
+                                                    .Include(j => j.Company)
+                                                    .Where(j => (j.UserId == currentUser.Id) && j.DateFinished == null)
+                                                    .Select(j => j.Company); // if user works for more than one company, all will be listed
+
+            ViewData["CompanyId"] = new SelectList(availableCompanies, "Id", "Name");
             ViewData["PreferenceId"] = new SelectList(_context.Preferences, "Id", "Id");
             return View();
         }
@@ -148,6 +155,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobAds/Edit/5
+        [Authorize(Roles = "Employer,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -203,6 +211,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobAds/Delete/5
+        [Authorize(Roles = "Employer,Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
