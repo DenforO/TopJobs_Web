@@ -11,6 +11,7 @@ using TopJobs.Data;
 using TopJobs.Models;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TopJobs.Controllers
 {
@@ -58,6 +59,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: Companies/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -80,6 +82,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: Companies/Edit/5
+        [Authorize(Roles = "Employer,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -141,6 +144,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: Companies/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

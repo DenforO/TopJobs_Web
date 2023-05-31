@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -50,6 +51,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobApplications/Create
+        [Authorize(Roles = "Applicant")]
         public IActionResult Create(int jobAdId)
         {
             ViewData["JobAdId"] = jobAdId;
@@ -86,6 +88,7 @@ namespace TopJobs.Controllers
             return View();
         }
         // GET: JobApplications/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -141,6 +144,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobApplications/Delete/5
+        [Authorize(Roles = "Employer,Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

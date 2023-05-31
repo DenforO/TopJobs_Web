@@ -63,11 +63,11 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobExperienceEntries/Create
-        public IActionResult Create(string userId)
+        public IActionResult Create()
         {
+            string userId = GetCurrentUserAsync().Result.Id;
             ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
             ViewData["PositionTypeId"] = new SelectList(_context.PositionTypes, "Id", "Name");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
             ViewBag.User = _userManager.FindByIdAsync(userId).Result;
             return View();
         }
@@ -143,6 +143,7 @@ namespace TopJobs.Controllers
                 try
                 {
                     jobExperienceEntry.PositionType = FindOrCreatePositionType(positionTypeName, positionTypeLevel);
+                    jobExperienceEntry.Verified = false;
                     _context.Update(jobExperienceEntry);
                     await _context.SaveChangesAsync();
                 }
@@ -201,5 +202,7 @@ namespace TopJobs.Controllers
         {
             return _context.JobExperienceEntries.Any(e => e.Id == id);
         }
+
+        private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
     }
 }
