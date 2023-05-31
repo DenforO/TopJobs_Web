@@ -27,7 +27,7 @@ namespace TopJobs.Controllers
         {
             ViewBag.User = _userManager.FindByIdAsync(userId).Result;
             var applicationDbContext = _context.JobExperienceEntries.Include(j => j.Company).Include(j => j.PositionType).Include(j => j.User);
-            return View(await applicationDbContext.Where(x => x.UserId == userId).OrderBy(x => x.DateStarted).ToListAsync());
+            return View(await applicationDbContext.Where(x => x.UserId == userId).OrderByDescending(x => x.DateStarted).ToListAsync());
         }
 
         [HttpPost]

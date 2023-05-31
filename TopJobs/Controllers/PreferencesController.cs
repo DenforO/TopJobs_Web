@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TopJobs.Data;
+using TopJobs.Methods;
 using TopJobs.Models;
 
 namespace TopJobs.Controllers
@@ -57,11 +58,20 @@ namespace TopJobs.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,PositionTypeId,WorkingHours,FlexibleSchedule,WorkFromHome")] Preference preference)
+        public async Task<IActionResult> Create([Bind("Id,PositionTypeId,WorkingHours,FlexibleSchedule,WorkFromHome")] Preference preference, string positionTypeName, string positionTypeLevel)
         {
             if (ModelState.IsValid)
             {
+                preference.PositionType = FindOrCreatePositionType(positionTypeName, positionTypeLevel);
+
                 _context.Add(preference);
+                var jobApplication = _context.JobApplications
+                                                        .Include(x => x.User)
+                                                        .Include(x => x.JobAd)
+                                                        .SingleOrDefault(x => x.JobAd.PreferenceId == preference.Id);
+                jobApplication.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(jobApplication.User.Preference, jobApplication.JobAd.Preference);
+                _context.Update(jobApplication);
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -202,6 +212,19 @@ namespace TopJobs.Controllers
         private bool PreferenceExists(int id)
         {
             return _context.Preferences.Any(e => e.Id == id);
+        }
+
+        private PositionType FindOrCreatePositionType(string positionTypeName, string positionTypeLevel)
+        {
+            foreach (var positionType in _context.PositionTypes)
+            {
+                if (positionType.Name == positionTypeName && positionType.Level == positionTypeLevel)
+                {
+                    return positionType;
+                }
+            }
+            return _context.PositionTypes.Add(new PositionType { Level = positionTypeLevel, Name = positionTypeName }).Entity;
+
         }
     }
 }

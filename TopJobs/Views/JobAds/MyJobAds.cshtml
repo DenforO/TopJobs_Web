@@ -1,0 +1,58 @@
+﻿@model IEnumerable<TopJobs.Models.JobAd>
+
+    @{
+    ViewData["Title"] = "Index";
+    }
+
+    <h1>Job Ads</h1>
+
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Position
+                </th>
+                <th style="padding-right:0px">
+
+                </th>
+                <th style="padding-left:0px">
+                    @Html.DisplayNameFor(model => model.Company)
+                </th>
+                <th>
+                    Date Submitted
+                </th>
+                <th>
+                    Match Percentage
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderBy(m => m.DateSubmitted))
+            {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td style="padding-right:0px">
+                    @if (item.Company.Logo != null)
+                    {
+                    <img style="width:40px;height:40px; object-fit:cover; border-radius:10px" src="data:image/*;base64,@(Convert.ToBase64String(item.Company.Logo))">
+                    }
+                </td>
+                <td style="padding-left:0px">
+                    @Html.DisplayFor(modelItem => item.Company.Name)
+                </td>
+                <td>
+                    @item.DateSubmitted.ToShortDateString()
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>

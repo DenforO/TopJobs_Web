@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TopJobs.Data;
+using TopJobs.Methods;
 using TopJobs.Models;
 
 namespace TopJobs.Controllers
@@ -70,7 +71,9 @@ namespace TopJobs.Controllers
         {
             jobApplication.DateApplied = DateTime.Now;
             jobApplication.JobAdId = jobAdId;
-            jobApplication.UserId = GetCurrentUserAsync().Result.Id;
+            var currentUser = GetCurrentUserAsync().Result;
+            jobApplication.UserId = currentUser.Id;
+            jobApplication.MatchingPercentage = 0;
 
             if (ModelState.IsValid)
             {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using TopJobs.Data;
 using TopJobs.Methods;
 using TopJobs.Models;
@@ -27,14 +28,54 @@ namespace TopJobs.Controllers
         // GET: JobAds
         public async Task<IActionResult> Index()
         {
-            var jobAds = _context.JobAds
+            var usr = GetCurrentUserAsync().Result;
+            IIncludableQueryable<JobAd, Technology> jobAds;
+
+            if (_userManager.IsInRoleAsync(GetCurrentUserAsync().Result, "Employer").Result)
+            {
+                var employerCompanies = GetCompaniesByEmloyer(usr);
+                jobAds = _context.JobAds
+                                        .Include(j => j.Company)
+                                        .Where(j => employerCompanies.Contains(j.Company)) // only employer's job ads
+                                        .Include(j => j.Preference)
+                                        .Include(j => j.Preference.PositionType)
+                                        .Include(j => j.Preference.TechnologyPreferences)
+                                        .ThenInclude(tp => tp.Technology);
+            }
+            else
+            {
+                jobAds = _context.JobAds
+                                        .Include(j => j.Company)
+                                        .Include(j => j.Preference)
+                                        .Include(j => j.Preference.PositionType)
+                                        .Include(j => j.Preference.TechnologyPreferences)
+                                        .ThenInclude(tp => tp.Technology);
+            }
+            var userPreference = _context.Preferences
+                                            .Include(p => p.PositionType)
+                                            .Include(p => p.TechnologyPreferences)
+                                            .ThenInclude(tp => tp.Technology)
+                                            .FirstOrDefault(x => x.Id == usr.PreferenceId);
+            foreach (var jobAd in jobAds)
+            {
+                jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
+            }
+            return View(await jobAds.ToListAsync());
+        }
+        // GET: JobAds/MyJobAds
+        public async Task<IActionResult> MyJobAds()
+        {
+            var usr = GetCurrentUserAsync().Result;
+            IIncludableQueryable<JobAd, Technology> jobAds;
+            var employerCompanies = GetCompaniesByEmloyer(usr);
+            jobAds = _context.JobAds
                                     .Include(j => j.Company)
+                                    .Where(j => employerCompanies.Contains(j.Company)) // only employer's job ads
                                     .Include(j => j.Preference)
                                     .Include(j => j.Preference.PositionType)
                                     .Include(j => j.Preference.TechnologyPreferences)
                                     .ThenInclude(tp => tp.Technology);
 
-            var usr = GetCurrentUserAsync().Result;
             var userPreference = _context.Preferences
                                             .Include(p => p.PositionType)
                                             .Include(p => p.TechnologyPreferences)
@@ -79,7 +120,7 @@ namespace TopJobs.Controllers
             foreach (var item in technologyNumbers)
             {
                 dataString += item.Value.ToString() + ",";
-                labelsString += item.Key + ": "+ item.Value.ToString() + "|";
+                labelsString += item.Key + ": " + item.Value.ToString() + "|";
             }
 
             ViewBag.DataString = dataString;
@@ -117,11 +158,7 @@ namespace TopJobs.Controllers
         public IActionResult Create()
         {
             var currentUser = GetCurrentUserAsync().Result;
-
-            var availableCompanies = _context.JobExperienceEntries
-                                                    .Include(j => j.Company)
-                                                    .Where(j => (j.UserId == currentUser.Id) && j.DateFinished == null)
-                                                    .Select(j => j.Company); // if user works for more than one company, all will be listed
+            var availableCompanies = GetCompaniesByEmloyer(currentUser);
 
             ViewData["CompanyId"] = new SelectList(availableCompanies, "Id", "Name");
             ViewData["PreferenceId"] = new SelectList(_context.Preferences, "Id", "Id");
@@ -248,5 +285,14 @@ namespace TopJobs.Controllers
         }
 
         private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
+
+        private IQueryable<Company> GetCompaniesByEmloyer(ApplicationUser employer)
+        {
+            // if user works for more than one company, all will be listed
+            return _context.JobExperienceEntries
+                                        .Include(j => j.Company)
+                                        .Where(j => (j.UserId == employer.Id) && j.DateFinished == null)
+                                        .Select(j => j.Company);
+        }
     }
 }

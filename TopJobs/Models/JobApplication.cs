@@ -14,5 +14,6 @@ namespace TopJobs.Models
         public ApplicationUser User { get; set; }
         [Required]
         public DateTime DateApplied { get; set; }
+        public int MatchingPercentage { get; set; }
     }
 }
