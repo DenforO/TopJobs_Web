@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<TopJobs.Models.JobAd>
 
     @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Job Ad";
     }
 
     <h1>Job Ads</h1>
@@ -15,17 +15,11 @@
                 <th>
                     Position
                 </th>
-                <th style="padding-right:0px">
-
-                </th>
-                <th style="padding-left:0px">
-                    @Html.DisplayNameFor(model => model.Company)
-                </th>
                 <th>
                     Date Submitted
                 </th>
                 <th>
-                    Match Percentage
+                    Candidates
                 </th>
                 <th></th>
             </tr>
@@ -37,17 +31,11 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
-                <td style="padding-right:0px">
-                    @if (item.Company.Logo != null)
-                    {
-                    <img style="width:40px;height:40px; object-fit:cover; border-radius:10px" src="data:image/*;base64,@(Convert.ToBase64String(item.Company.Logo))">
-                    }
-                </td>
-                <td style="padding-left:0px">
-                    @Html.DisplayFor(modelItem => item.Company.Name)
-                </td>
                 <td>
                     @item.DateSubmitted.ToShortDateString()
+                </td>
+                <td>
+                    @item.JobApplications.Count()
                 </td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a>

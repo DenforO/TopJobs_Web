@@ -76,7 +76,14 @@ namespace TopJobs.Controllers
             ViewBag.User = user;
             ViewBag.Education = userEducation;
             ViewBag.Experience = userExperience;
-            ViewBag.CurrentPosition = userExperience[0].Timeframe.Contains("Present") ? userExperience[0].Position : string.Empty;
+            if (userExperience.Count > 0)
+            {
+                ViewBag.CurrentPosition = userExperience[0].Timeframe.Contains("Present") ? userExperience[0].Position : string.Empty;
+            }
+            else
+            {
+                ViewBag.CurrentPosition = string.Empty;
+            }
             ViewBag.Technologies = technologies;
             return View();
         }

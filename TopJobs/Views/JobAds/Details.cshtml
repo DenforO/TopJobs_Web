@@ -103,6 +103,16 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Create" asp-controller="JobApplications" asp-route-jobAdId="@Model.Id">Apply</a> |
-    <a asp-action="Index">Back to List</a>
+    @{
+        @if (ViewBag.IsEmployer)
+        {
+            <a asp-action="Candidates" asp-route-jobAdId="@Model.Id">Candidates</a>
+            <a asp-action="MyJobAds"> | Back to List</a>
+        }
+        else
+        {
+            <a asp-action="Create" asp-controller="JobApplications" asp-route-jobAdId="@Model.Id">Apply</a>
+            <a asp-action="Index"> | Back to List</a>
+        }
+    }
 </div>

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using TopJobs.Data;
 using TopJobs.Methods;
 using TopJobs.Models;
+using TopJobs.ViewModels;
 
 namespace TopJobs.Controllers
 {
@@ -71,6 +72,8 @@ namespace TopJobs.Controllers
             jobAds = _context.JobAds
                                     .Include(j => j.Company)
                                     .Where(j => employerCompanies.Contains(j.Company)) // only employer's job ads
+                                    .Include(j => j.JobApplications)
+                                    .ThenInclude(a => a.User)
                                     .Include(j => j.Preference)
                                     .Include(j => j.Preference.PositionType)
                                     .Include(j => j.Preference.TechnologyPreferences)
@@ -137,6 +140,8 @@ namespace TopJobs.Controllers
             {
                 return NotFound();
             }
+
+            ViewBag.IsEmployer = await _userManager.IsInRoleAsync(await GetCurrentUserAsync(), "Employer");
 
             var jobAd = await _context.JobAds
                 .Include(j => j.Company)
@@ -277,6 +282,31 @@ namespace TopJobs.Controllers
             _context.JobAds.Remove(jobAd);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: JobAds/Candidates/5
+        [Authorize(Roles = "Employer,Admin")]
+        public async Task<IActionResult> Candidates(int? jobAdId)
+        {
+            if (jobAdId == null)
+            {
+                return NotFound();
+            }
+
+            var candidates = await _context.JobApplications
+                .Where(j => j.JobAdId == jobAdId)
+                .Include(j => j.JobAd)
+                .Include(j => j.User)
+                .Select(j => new CandidateViewModel(j.User, j.DateApplied, j.MatchingPercentage))
+                .ToListAsync();
+
+
+            if (candidates == null)
+            {
+                return NotFound();
+            }
+
+            return View(candidates);
         }
 
         private bool JobAdExists(int id)
