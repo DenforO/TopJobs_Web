@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using TopJobs.Data;
 using TopJobs.Methods;
 using TopJobs.Models;
+using TopJobs.ViewModels;
 
 namespace TopJobs.Controllers
 {
@@ -105,7 +108,10 @@ namespace TopJobs.Controllers
                                                             .Select(group => group.Key);
 
             ViewData["Technologies"] = _context.Technologies
-                                                        .ToListAsync().Result;
+                                                        .Include(t => t.TechnologyPreferences)
+                                                            .ThenInclude(tp => tp.Preference)
+                                                        .AsEnumerable()
+                                                        .Select(t => new PreferredTechnologiesViewModel { Technology = t, Selected = t.TechnologyPreferences.Select(tp => tp.PreferenceId).ToList().Contains(preference.Id) });
 
             ViewData["TechnologyPreferences"] = _context.TechnologyPreferences
                                                                             .Where(x => x.PreferenceId == id)
@@ -145,9 +151,8 @@ namespace TopJobs.Controllers
                                                     .Where(p => p.Level == positionTypeLevel && p.Name == positionTypeName)
                                                     .FirstOrDefault().Id;
 
-                    List<string> technologyNames = TechnologiesSelected.Split(";").ToList();
-                    technologyNames.RemoveAt(technologyNames.Count - 1);
-
+                    List<string> technologyNames = TechnologiesSelected.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList();
+                    
                     var oldTechnologyPreferences = _context.TechnologyPreferences.Where(x => x.PreferenceId == id);
                     _context.TechnologyPreferences.RemoveRange(oldTechnologyPreferences);
                     await _context.SaveChangesAsync();
@@ -263,6 +268,26 @@ namespace TopJobs.Controllers
             return _context.Preferences.Any(e => e.Id == id);
         }
 
+        [Produces("application/json")]
+        [HttpGet("search")]
+        [Route("SearchPositions")]
+        public async Task<IActionResult> SearchPositions() // for autocomplete
+        {
+            try
+            {
+                string term = HttpContext.Request.Query["term"].ToString();
+
+                var names = _context.PositionTypes.Where(p => p.Name.Contains(term))
+                        .GroupBy(p => p.Name)
+                        .Select(p => p.First())
+                        .Select(p => new { p.Id, p.Name }).ToListAsync();
+                return Ok(await names);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
         private PositionType FindOrCreatePositionType(string positionTypeName, string positionTypeLevel)
         {
             foreach (var positionType in _context.PositionTypes)

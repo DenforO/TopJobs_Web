@@ -40,7 +40,7 @@ namespace TopJobs.Controllers
 
         [Route("GetCompaniesPrefix")]
         [HttpPost]
-        public IEnumerable<object> GetCompaniesPrefix([FromBody]string prefix)
+        public IEnumerable<object> GetCompaniesPrefix([FromBody] string prefix)
         {
             //Note : you can bind same list from database  
             List<Company> allCompanies = _context.Companies.ToList();
@@ -60,7 +60,28 @@ namespace TopJobs.Controllers
                 string term = HttpContext.Request.Query["term"].ToString();
 
                 var names = _context.Companies.Where(p => p.Name.Contains(term))
-                        .Select(p => new { p.Id, p.Name}).ToListAsync();
+                        .Select(p => new { p.Id, p.Name }).ToListAsync();
+                return Ok(await names);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+        [Produces("application/json")]
+        [HttpGet("searchPositions")]
+        [Route("SearchPositions")]
+        public async Task<IActionResult> SearchPositions() // for autocomplete
+        {
+            try
+            {
+                string term = HttpContext.Request.Query["term"].ToString();
+
+                var names = _context.PositionTypes
+                        .Select(p => p.Name)
+                        .Distinct()
+                        .Where(p => p.Contains(term))
+                        .ToListAsync();
                 return Ok(await names);
             }
             catch (Exception ex)
