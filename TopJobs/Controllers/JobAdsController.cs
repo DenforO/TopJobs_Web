@@ -296,8 +296,20 @@ namespace TopJobs.Controllers
             var candidates = await _context.JobApplications
                 .Where(j => j.JobAdId == jobAdId)
                 .Include(j => j.JobAd)
+                    .ThenInclude(a => a.Preference)
+                        .ThenInclude(p => p.TechnologyPreferences)
+                            .ThenInclude(tp => tp.Technology)
+                .Include(j => j.JobAd)
+                    .ThenInclude(a => a.Preference)
+                        .ThenInclude(p => p.PositionType)
                 .Include(j => j.User)
-                .Select(j => new CandidateViewModel(j.User, j.DateApplied, j.MatchingPercentage))
+                    .ThenInclude(u => u.Preference)
+                        .ThenInclude(p => p.TechnologyPreferences)
+                            .ThenInclude(tp => tp.Technology)
+                .Include(j => j.User)
+                    .ThenInclude(u => u.Preference)
+                        .ThenInclude(p => p.PositionType)
+                .Select(j => new CandidateViewModel(j.User, j.DateApplied, j.JobAd.Preference))
                 .ToListAsync();
 
 

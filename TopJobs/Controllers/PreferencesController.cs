@@ -139,25 +139,74 @@ namespace TopJobs.Controllers
                     if (positionType == null)
                     {
                         var newPositionType =_context.Add(new PositionType { Level = positionTypeLevel, Name = positionTypeName });
-                        await _context.SaveChangesAsync();
+                        //await _context.SaveChangesAsync();
                     }
                     preference.PositionTypeId = _context.PositionTypes
                                                     .Where(p => p.Level == positionTypeLevel && p.Name == positionTypeName)
                                                     .FirstOrDefault().Id;
 
-                    List<string> technologieNames = TechnologiesSelected.Split(";").ToList();
-                    technologieNames.RemoveAt(technologieNames.Count - 1);
+                    List<string> technologyNames = TechnologiesSelected.Split(";").ToList();
+                    technologyNames.RemoveAt(technologyNames.Count - 1);
 
                     var oldTechnologyPreferences = _context.TechnologyPreferences.Where(x => x.PreferenceId == id);
                     _context.TechnologyPreferences.RemoveRange(oldTechnologyPreferences);
                     await _context.SaveChangesAsync();
 
-                    foreach (var technology in technologieNames)
+                    foreach (var technology in technologyNames)
                     {
                         int technologyId = _context.Technologies.Where(x => x.Name == technology).First().Id;
                         _context.TechnologyPreferences.Add(new TechnologyPreference { PreferenceId = id, TechnologyId = technologyId });
                         await _context.SaveChangesAsync();
                     }
+
+                    //var user = _context.Users
+                    //                        .Include(u => u.Preference)
+                    //                            .ThenInclude(p => p.PositionType)
+                    //                        .Include(u => u.Preference)
+                    //                            .ThenInclude(p => p.TechnologyPreferences)
+                    //                                .ThenInclude(tp => tp.Technology)
+                    //                        .Include(u => u.JobApplications)
+                    //                            .ThenInclude(j => j.JobAd)
+                    //                                .ThenInclude(a => a.Preference)
+                    //                                    .ThenInclude(p => p.PositionType)
+                    //                        .Include(u => u.JobApplications)
+                    //                            .ThenInclude(j => j.JobAd)
+                    //                                .ThenInclude(a => a.Preference)
+                    //                                    .ThenInclude(p => p.TechnologyPreferences)
+                    //                                        .ThenInclude(tp => tp.Technology)
+                    //                        .FirstOrDefault(x => x.PreferenceId == id);
+                    //List<JobApplication> jobApplications;
+                    //if (user != null)
+                    //{
+                    //    jobApplications = user.JobApplications.ToList();
+                    //}
+                    //else
+                    //{
+                    //    var jobAd = _context.JobAds
+                    //                        .Include(j => j.Preference)
+                    //                            .ThenInclude(p => p.PositionType)
+                    //                        .Include(j => j.Preference)
+                    //                            .ThenInclude(p => p.TechnologyPreferences)
+                    //                                .ThenInclude(tp => tp.Technology)
+                    //                        .Include(j => j.JobApplications)
+                    //                            .ThenInclude(a => a.User)
+                    //                                .ThenInclude(u => u.Preference)
+                    //                                    .ThenInclude(p => p.PositionType)
+                    //                        .Include(j => j.JobApplications)
+                    //                            .ThenInclude(j => j.JobAd)
+                    //                                .ThenInclude(a => a.Preference)
+                    //                                    .ThenInclude(p => p.TechnologyPreferences)
+                    //                                        .ThenInclude(tp => tp.Technology)
+                    //                        .FirstOrDefault(x => x.PreferenceId == id);
+
+                    //    jobApplications = jobAd.JobApplications.ToList();
+                    //}
+
+                    //foreach (var jobApplication in jobApplications)
+                    //{
+                    //    jobApplication.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(jobApplication.User.Preference, jobApplication.JobAd.Preference);
+                    //    _context.Update(jobApplication);
+                    //}
 
                     _context.Update(preference);
                     await _context.SaveChangesAsync();

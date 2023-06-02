@@ -16,7 +16,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.OrderBy(m => m.MatchingPercentage))
+        @foreach (var item in Model.OrderBy(m => m.Match))
         {
             <tr>
                 <td>
@@ -47,9 +47,9 @@
                     <p class="fw-normal mb-1">@item.DateApplied.ToShortDateString()</p>
                 </td>
                 <td>
-                    <p class="mb-1" style="font-size: .77rem;">@item.MatchingPercentage</p>
+                    <p class="mb-1" style="font-size: .77rem;">@item.Match</p>
                     <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width:@item.MatchingPercentage" aria-valuenow="80"
+                        <div class="progress-bar" role="progressbar" style="width:@item.Match" aria-valuenow="80"
                              aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </td>
