@@ -52,9 +52,10 @@
                     <option value="False">No</option>
                 </select>
                 <span asp-validation-for="WorkFromHome" class="text-danger"></span>
-            </div>         
+            </div>
             <div class="form-group">
-                <select data-placeholder="Begin typing a name to filter..." multiple class="chosen-select" name="test">
+                <label class="control-label" >Preferred technologies</label>
+                <select data-placeholder="Begin typing a name to filter..." multiple class="chosen-select form-control" name="test">
                     <option value=""></option>
                     @foreach (PreferredTechnologiesViewModel technology in ViewBag.Technologies)
                     {
@@ -70,35 +71,35 @@
                 </select>
             </div>
             @*<label class="control-label" style="margin-bottom: 15px;">Preferred technologies</label>
-            @for (int i = 0; i < ViewBag.Technologies.Count / 3; i++)
-            {
-                <div class="form-row">
-                    @for (int j = 0; j < 3; j++)
-                    {
-                        bool isChecked = false;
+                @for (int i = 0; i < ViewBag.Technologies.Count / 3; i++)
+                {
+                    <div class="form-row">
+                        @for (int j = 0; j < 3; j++)
+                        {
+                            bool isChecked = false;
 
-                        <div class="form-group form-check" style="margin-right: auto;">
-                            <label class="form-check-label">
-                                @foreach (var technologyPreference in ViewBag.TechnologyPreferences)
-                                {
-                                    @if (technologyPreference == @ViewBag.Technologies[i * 3 + j].Name)
+                            <div class="form-group form-check" style="margin-right: auto;">
+                                <label class="form-check-label">
+                                    @foreach (var technologyPreference in ViewBag.TechnologyPreferences)
                                     {
-                                        <input type="checkbox" class="form-check-input" name="mycheckboxes" value="@ViewBag.Technologies[i * 3 + j].Name" onchange="passSelectedTechnologies()" checked /> @ViewBag.Technologies[i * 3 + j].Name
-                                        isChecked = true;
-                                        continue;
+                                        @if (technologyPreference == @ViewBag.Technologies[i * 3 + j].Name)
+                                        {
+                                            <input type="checkbox" class="form-check-input" name="mycheckboxes" value="@ViewBag.Technologies[i * 3 + j].Name" onchange="passSelectedTechnologies()" checked /> @ViewBag.Technologies[i * 3 + j].Name
+                                            isChecked = true;
+                                            continue;
+                                        }
                                     }
-                                }
-                                @if (!isChecked)
-                                {
-                                    <input type="checkbox" class="form-check-input" name="mycheckboxes" value="@ViewBag.Technologies[i * 3 + j].Name" onchange="passSelectedTechnologies()" /> @ViewBag.Technologies[i * 3 + j].Name
+                                    @if (!isChecked)
+                                    {
+                                        <input type="checkbox" class="form-check-input" name="mycheckboxes" value="@ViewBag.Technologies[i * 3 + j].Name" onchange="passSelectedTechnologies()" /> @ViewBag.Technologies[i * 3 + j].Name
 
-                                }
+                                    }
 
-                            </label>
-                        </div>
-                    }
-                </div>
-            }*@
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }*@
             <div class="form-group">
                 <input id="TechnologiesSelected" name="TechnologiesSelected" value="'none'" style="display: none;" />
             </div>

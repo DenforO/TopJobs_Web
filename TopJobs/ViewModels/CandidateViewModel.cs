@@ -9,20 +9,12 @@ namespace TopJobs.ViewModels
 {
     public class CandidateViewModel
     {
-        public ApplicationUser User { get; set; }
-        public DateTime DateApplied { get; set; }
+        public JobApplication JobApplication { get; set; }
         public string Match { get; set; }
-        public CandidateViewModel(ApplicationUser user, DateTime dateApplied, int matchingPercentage)
+        public CandidateViewModel(JobApplication jobApplication)
         {
-            User = user;
-            DateApplied = dateApplied;
-            Match = matchingPercentage + "%";
-        }
-        public CandidateViewModel(ApplicationUser user, DateTime dateApplied, Preference jobAdPreference)
-        {
-            User = user;
-            DateApplied = dateApplied;
-            Match = MatchPercentage.CalculateMatchPercentage(user.Preference, jobAdPreference) + "%";
+            JobApplication = jobApplication;
+            Match = MatchPercentage.CalculateMatchPercentage(jobApplication.User.Preference, jobApplication.JobAd.Preference) + "%";
         }
     }
 }

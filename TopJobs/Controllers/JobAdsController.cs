@@ -309,7 +309,7 @@ namespace TopJobs.Controllers
                 .Include(j => j.User)
                     .ThenInclude(u => u.Preference)
                         .ThenInclude(p => p.PositionType)
-                .Select(j => new CandidateViewModel(j.User, j.DateApplied, j.JobAd.Preference))
+                .Select(j => new CandidateViewModel(j))
                 .ToListAsync();
 
 

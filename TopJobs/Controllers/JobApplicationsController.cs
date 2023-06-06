@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 using TopJobs.Data;
 using TopJobs.Methods;
 using TopJobs.Models;
@@ -148,9 +150,9 @@ namespace TopJobs.Controllers
 
         // GET: JobApplications/Delete/5
         [Authorize(Roles = "Employer,Admin")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int jobAdId, string userId)
         {
-            if (id == null)
+            if (jobAdId == null || userId == null)
             {
                 return NotFound();
             }
@@ -158,7 +160,7 @@ namespace TopJobs.Controllers
             var jobApplication = await _context.JobApplications
                 .Include(j => j.JobAd)
                 .Include(j => j.User)
-                .FirstOrDefaultAsync(m => m.JobAdId == id);
+                .FirstOrDefaultAsync(m => m.JobAdId == jobAdId && m.UserId == userId);
             if (jobApplication == null)
             {
                 return NotFound();
@@ -170,14 +172,50 @@ namespace TopJobs.Controllers
         // POST: JobApplications/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int jobAdId, string userId)
         {
-            var jobApplication = await _context.JobApplications.FindAsync(id);
+
+            var jobApplication = await _context.JobApplications
+                .Include(j => j.JobAd)
+                .Include(j => j.User)
+                .FirstOrDefaultAsync(m => m.JobAdId == jobAdId && m.UserId == userId);
             _context.JobApplications.Remove(jobApplication);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToRoute(new { action = "Candidates", controller = "JobAds", jobAdId = jobAdId });
         }
 
+        // POST: JobAds/Accept/5
+        [HttpPost, ActionName("Accept")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Accept(int jobAdId, string userId)
+        {
+            var jobApplication = await _context.JobApplications
+                                                        .Include(j => j.User)
+                                                        .Include(j => j.JobAd)
+                                                            .ThenInclude(a => a.Company)
+                                                        .FirstOrDefaultAsync(j => j.JobAdId == jobAdId && j.UserId == userId);
+            jobApplication.Accepted = true;
+            await _context.SaveChangesAsync();
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("TopJobs", "test_app_23@outlook.com"));
+            message.To.Add(new MailboxAddress(jobApplication.User.FullName, jobApplication.User.Email));
+            message.Subject = "Job application accepted";
+            message.Body = new TextPart("plain")
+            {
+                Text = $"Hello, {jobApplication.User.FullName},\nYour application for the \"{jobApplication.JobAd.Name}\" position at {jobApplication.JobAd.Company.Name} has been reviewed and accepted.\nExpect a call from us for the upcomming interview.\n\nBest regards,\nTopJobs"
+            };
+
+            using (var client = new SmtpClient())
+            {
+                client.Connect("smtp-mail.outlook.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                client.Authenticate("test_app_23@outlook.com", "@pPT35t;3202");
+                client.Send(message);
+                client.Disconnect(true);
+            }
+
+            return RedirectToRoute(new { action = "Candidates", controller = "JobAds", jobAdId = jobAdId });
+        }
         private bool JobApplicationExists(int id)
         {
             return _context.JobApplications.Any(e => e.JobAdId == id);
