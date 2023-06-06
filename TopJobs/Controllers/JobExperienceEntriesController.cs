@@ -30,6 +30,31 @@ namespace TopJobs.Controllers
             return View(await applicationDbContext.Where(x => x.UserId == userId).OrderByDescending(x => x.DateStarted).ToListAsync());
         }
 
+        // GET: Unapproved
+        public async Task<IActionResult> Unapproved()
+        {
+            var user = GetCurrentUserAsync();
+            var userCompanies = GetCompaniesByEmloyer(await user);
+            var unapprovedJobEntries = _context.JobExperienceEntries
+                                                        .Include(j => j.Company)
+                                                        .Include(j => j.PositionType)
+                                                        .Include(j => j.User)
+                                                        .Where(j => userCompanies.Contains(j.Company) && !j.Verified)
+                                                        .ToListAsync();
+            return View(await unapprovedJobEntries);
+        }
+        // POST: JobAds/Accept/5
+        [HttpPost, ActionName("Verify")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Verify(int jobExperienceId)
+        {
+            var jobExperienceEntry = await _context.JobExperienceEntries.FindAsync(jobExperienceId);
+            jobExperienceEntry.Verified = true;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Unapproved));
+        }
+
         [HttpPost]
         public JsonResult CompaniesPrefix(string prefix)
         {
@@ -204,5 +229,13 @@ namespace TopJobs.Controllers
         }
 
         private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
+        private IQueryable<Company> GetCompaniesByEmloyer(ApplicationUser employer)
+        {
+            // if user works for more than one company, all will be listed
+            return _context.JobExperienceEntries
+                                        .Include(j => j.Company)
+                                        .Where(j => (j.UserId == employer.Id) && j.DateFinished == null)
+                                        .Select(j => j.Company);
+        }
     }
 }

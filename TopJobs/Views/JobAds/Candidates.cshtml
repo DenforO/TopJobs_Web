@@ -70,10 +70,7 @@
                         <form asp-action="Accept" asp-controller="JobApplications" asp-route-jobAdId="@item.JobApplication.JobAdId" asp-route-userId="@item.JobApplication.UserId">
                             <input type="submit" value="Accept" class="btn btn-primary" />
                         </form>
-
-                        <button class="btn-lg" style="margin:10px" onclick="window.location.href = '../JobApplications/Delete?'">Search Companies</button>
-
-                        <form asp-action="Delete" method="get" asp-controller="JobApplications" asp-route-jobAdId="@item.JobApplication.JobAdId" asp-route-userId="@item.JobApplication.UserId" style="margin-top:10px">
+                        <form asp-action="Delete" asp-controller="JobApplications" asp-route-jobAdId="@item.JobApplication.JobAdId" asp-route-userId="@item.JobApplication.UserId" style="margin-top:10px">
                             <input type="submit" value="Delete" class="btn btn-danger" />
                         </form>
                     }

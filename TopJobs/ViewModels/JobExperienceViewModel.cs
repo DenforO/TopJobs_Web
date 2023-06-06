@@ -11,10 +11,21 @@ namespace TopJobs.ViewModels
         public string Company { get; protected set; }
         public string Position { get; protected set; }
         public string Timeframe { get; protected set; }
+        public bool Verified { get; protected set; }
         public JobExperienceViewModel(JobExperienceEntry jobExperienceEntry)
         {
-            this.Company = jobExperienceEntry.Company.Name;
-            this.Position = jobExperienceEntry.PositionType.Level + " " + jobExperienceEntry.PositionType.Name;
+            Company = jobExperienceEntry.Company.Name;
+
+            if(jobExperienceEntry.PositionType.Level.Equals("-"))
+            {
+                Position = jobExperienceEntry.PositionType.Name;
+            }
+            else
+            {
+                Position = jobExperienceEntry.PositionType.Level + " " + jobExperienceEntry.PositionType.Name;
+            }
+
+            Verified = jobExperienceEntry.Verified;
 
             if (jobExperienceEntry.DateFinished.HasValue)
             {

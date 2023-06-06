@@ -102,7 +102,15 @@
                                     JobExperienceViewModel entry = ViewBag.Experience[i];
                                     <div class="row">
                                         <div class="col-sm-9">
-                                            <p class="mb-0"><b>@entry.Company</b></p>
+                                            <p class="mb-0">
+                                                <b>
+                                                    @if (entry.Verified)
+                                                    {
+                                                        <b data-mdb-toggle="tooltip" data-mdb-placement="left" title="Verified by the employer" style="color:forestgreen">&#x2713</b>
+                                                    }
+                                                    @entry.Company
+                                                </b>
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="row">

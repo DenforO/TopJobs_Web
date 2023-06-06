@@ -174,7 +174,7 @@ namespace TopJobs.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int jobAdId, string userId)
         {
-
+            
             var jobApplication = await _context.JobApplications
                 .Include(j => j.JobAd)
                 .Include(j => j.User)
