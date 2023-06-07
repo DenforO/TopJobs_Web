@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TopJobs.Models;
+using X.PagedList;
 
 namespace TopJobs.Controllers
 {
@@ -21,8 +22,13 @@ namespace TopJobs.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Index(string currentFilter, string searchString, int? page)
+        public async Task<IActionResult> Index(string currentFilter, string searchString, int? page = 1)
         {
+            if (page != null && page < 1)
+            {
+                page = 1;
+            }
+
             if (searchString != null)
             {
                 page = 1;
@@ -56,9 +62,9 @@ namespace TopJobs.Controllers
                     UserName = user.UserName
                 });
             }
-            int pageSize = 3;
-            int pageNumber = page ?? 1;
-            return View(userRolesViewModel);
+
+            var pageSize = 5;
+            return View(userRolesViewModel.ToPagedList(page ?? 1, pageSize));
         }
 
         [Authorize(Roles = "Admin")]
