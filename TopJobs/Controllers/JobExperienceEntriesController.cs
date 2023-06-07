@@ -234,7 +234,7 @@ namespace TopJobs.Controllers
             // if user works for more than one company, all will be listed
             return _context.JobExperienceEntries
                                         .Include(j => j.Company)
-                                        .Where(j => (j.UserId == employer.Id) && j.DateFinished == null)
+                                        .Where(j => (j.UserId == employer.Id) && j.DateFinished == null && j.Verified)
                                         .Select(j => j.Company);
         }
     }

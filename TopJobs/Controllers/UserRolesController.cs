@@ -21,20 +21,43 @@ namespace TopJobs.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string currentFilter, string searchString, int? page)
         {
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewBag.CurrentFilter = searchString;
+
             var users = await _userManager.Users.ToListAsync();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToUpper();
+                users = users
+                            .Where(u => u.FullName.ToUpper().Contains(searchString) 
+                                     || u.UserName.ToUpper().Contains(searchString)
+                                     || u.NormalizedEmail.Contains(searchString))
+                            .ToList();
+            }
+
             var userRolesViewModel = new List<UserRolesViewModel>();
             foreach (ApplicationUser user in users)
             {
-                var thisViewModel = new UserRolesViewModel();
-                thisViewModel.UserId = user.Id;
-                thisViewModel.Email = user.Email;
-                thisViewModel.FirstName = user.FirstName;
-                thisViewModel.LastName = user.LastName;
-                thisViewModel.Roles = await GetUserRoles(user);
-                userRolesViewModel.Add(thisViewModel);
+                userRolesViewModel.Add(new UserRolesViewModel
+                {
+                    UserId = user.Id,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    UserName = user.UserName
+                });
             }
+            int pageSize = 3;
+            int pageNumber = page ?? 1;
             return View(userRolesViewModel);
         }
 
