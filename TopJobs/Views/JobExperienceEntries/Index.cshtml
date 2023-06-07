@@ -5,7 +5,10 @@
 }
 
 <h1>Job entries</h1>
-<h3>@Model.First().User.UserName</h3>
+<h3>@ViewBag.User.UserName</h3>
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
 <table class="table align-middle mb-0 bg-light table-striped table-hover sortable">
     <thead class="bg-light">
         <tr>
