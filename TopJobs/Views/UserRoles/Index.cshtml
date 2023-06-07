@@ -32,7 +32,8 @@
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
                 <td>
-                    <a class="btn btn-primary" asp-controller="UserRoles" asp-action="Manage" asp-route-userId="@user.UserId">Manage Roles</a>
+                    <a class="btn btn-primary" asp-controller="UserRoles" asp-action="Manage" asp-route-userId="@user.UserId">Roles</a>
+                    <a class="btn btn-primary" asp-controller="JobExperienceEntries" asp-action="Index" asp-route-userId="@user.UserId">Experience</a>
                 </td>
             </tr>
         }

@@ -52,7 +52,12 @@ namespace TopJobs.Controllers
             jobExperienceEntry.Verified = true;
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Unapproved));
+            if (await _userManager.IsInRoleAsync(await GetCurrentUserAsync(), "Employer"))
+            {
+                return RedirectToAction(nameof(Unapproved));
+            }
+            return RedirectToAction(nameof(Index), new { userId = jobExperienceEntry.UserId });
+
         }
 
         [HttpPost]
