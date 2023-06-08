@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<TopJobs.Models.Company>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Companies";
 }
 
-<h1>Index</h1>
+<h1>Companies</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -46,7 +46,10 @@
                 @Html.DisplayFor(modelItem => item.City)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Logo)
+                @if (item.Logo != null)
+                {
+                    <img style="width:40px;height:40px; object-fit:cover; border-radius:30px" src="data:image/*;base64,@(Convert.ToBase64String(item.Logo))">
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.SiteUrl)
