@@ -9,6 +9,31 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<div class="row row-cols-1 row-cols-md-5 g-4">
+    @foreach (var company in Model)
+    {
+        <div class="col">
+            <div class="card h-100">
+                <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+                    @if (company.Logo != null)
+                    {
+                        <img src="data:image/*;base64,@(Convert.ToBase64String(company.Logo))" class="img-fluid" alt="@company.Name logo">
+                    }
+                    else
+                    {
+                        <img src="/img/profile-logo.png" class="img-fluid" alt="@company.Name logo" />
+                    }
+                    <a asp-action="Details" asp-route-id="@company.Id">
+                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">@company.Name</h5>
+                    <p class="card-text">@company.Description</p>
+                </div>
+            </div>
+        </div>
+    }
 <table class="table">
     <thead>
         <tr>
@@ -34,35 +59,36 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.City)
-            </td>
-            <td>
-                @if (item.Logo != null)
-                {
-                    <img style="width:40px;height:40px; object-fit:cover; border-radius:30px" src="data:image/*;base64,@(Convert.ToBase64String(item.Logo))">
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SiteUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Verified)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.City)
+                </td>
+                <td>
+                    @if (item.Logo != null)
+                    {
+                        <img style="width:40px;height:40px; object-fit:cover; border-radius:30px" src="data:image/*;base64,@(Convert.ToBase64String(item.Logo))">
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SiteUrl)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Verified)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
