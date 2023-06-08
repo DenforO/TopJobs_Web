@@ -12,6 +12,7 @@ using TopJobs.Data;
 using TopJobs.Methods;
 using TopJobs.Models;
 using TopJobs.ViewModels;
+using X.PagedList;
 
 namespace TopJobs.Controllers
 {
@@ -64,12 +65,25 @@ namespace TopJobs.Controllers
             return View(await jobAds.ToListAsync());
         }
         // GET: JobAds/MyJobAds
-        public async Task<IActionResult> MyJobAds()
+        public async Task<IActionResult> MyJobAds(string currentFilter, string searchString, int? page = 1)
         {
-            var usr = GetCurrentUserAsync().Result;
-            IIncludableQueryable<JobAd, Technology> jobAds;
+            if (page != null && page < 1)
+            {
+                page = 1;
+            }
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewBag.CurrentFilter = searchString;
+            var usr = await GetCurrentUserAsync();
             var employerCompanies = GetCompaniesByEmloyer(usr);
-            jobAds = _context.JobAds
+            var jobAds = _context.JobAds
                                     .Include(j => j.Company)
                                     .Where(j => employerCompanies.Contains(j.Company)) // only employer's job ads
                                     .Include(j => j.JobApplications)
@@ -77,7 +91,14 @@ namespace TopJobs.Controllers
                                     .Include(j => j.Preference)
                                     .Include(j => j.Preference.PositionType)
                                     .Include(j => j.Preference.TechnologyPreferences)
-                                    .ThenInclude(tp => tp.Technology);
+                                    .ThenInclude(tp => tp.Technology)
+                                    .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToUpper();
+                jobAds = jobAds.Where(j => j.Name.ToUpper().Contains(searchString)|| j.Preference.PositionType.Name.ToUpper().Contains(searchString));
+            }
 
             var userPreference = _context.Preferences
                                             .Include(p => p.PositionType)
@@ -88,7 +109,8 @@ namespace TopJobs.Controllers
             {
                 jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
             }
-            return View(await jobAds.ToListAsync());
+            var pageSize = 5;
+            return View(jobAds.ToPagedList(page ?? 1, pageSize));
         }
 
         public async Task<IActionResult> Charts()

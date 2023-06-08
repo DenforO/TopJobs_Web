@@ -1,32 +1,42 @@
-﻿@model IEnumerable<TopJobs.Models.JobAd>
+﻿@using X.PagedList.Mvc.Common;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@model IPagedList<TopJobs.Models.JobAd>
 
-    @{
+@{
     ViewData["Title"] = "Job Ad";
-    }
+}
 
-    <h1>Job Ads</h1>
+<h1>Job Ads</h1>
 
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+@using (Html.BeginForm("MyJobAds", "JobAds", FormMethod.Get))
+{
     <p>
-        <a asp-action="Create">Create New</a>
+        Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+        <input type="submit" value="Search" />
     </p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    Position
-                </th>
-                <th>
-                    Date Submitted
-                </th>
-                <th>
-                    Candidates
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.OrderBy(m => m.DateSubmitted))
-            {
+}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Date Submitted
+            </th>
+            <th>
+                Candidates
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderBy(m => m.DateSubmitted))
+        {
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
@@ -41,6 +51,20 @@
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a>
                 </td>
             </tr>
-            }
-        </tbody>
-    </table>
+        }
+    </tbody>
+</table>
+<nav>
+    @Html.PagedListPager(Model, page => Url.Action("MyJobAds", new { page = page, currentFilter = ViewBag.CurrentFilter }), new PagedListRenderOptions()
+    {
+        ActiveLiElementClass = "active",
+        PageClasses = new[] { "page-link" },
+        LiElementClasses = new[] { "page-item" },
+        UlElementClasses = new[] { "pagination", "justify-content-center", "mt-3" },
+        LinkToNextPageFormat = "Next",
+        LinkToPreviousPageFormat = "Previous",
+        MaximumPageNumbersToDisplay = 5,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always
+    })
+</nav>
