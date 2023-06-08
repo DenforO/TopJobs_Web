@@ -144,12 +144,9 @@ namespace TopJobs.Controllers
                                                         .FirstOrDefault();
                     if (positionType == null)
                     {
-                        var newPositionType =_context.Add(new PositionType { Level = positionTypeLevel, Name = positionTypeName });
-                        //await _context.SaveChangesAsync();
+                        positionType =_context.Add(new PositionType { Level = positionTypeLevel, Name = positionTypeName }).Entity;
                     }
-                    preference.PositionTypeId = _context.PositionTypes
-                                                    .Where(p => p.Level == positionTypeLevel && p.Name == positionTypeName)
-                                                    .FirstOrDefault().Id;
+                    preference.PositionTypeId = positionType.Id;
 
                     List<string> technologyNames = TechnologiesSelected.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList();
                     
