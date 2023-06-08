@@ -15,26 +15,33 @@
 @using (Html.BeginForm("MyJobAds", "JobAds", FormMethod.Get))
 {
     @*<p>
-        @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
-        <input type="submit" value="Search" />
-    </p>*@
+            @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+            <input type="submit" value="Search" />
+        </p>*@
 
     <section class="w-100 p-4 pb-4 d-flex align-items-baseline flex-column">
         <div>
             <div class="input-group">
                 <div class="form-outline">
                     <input id="SearchString" name="searchString" type="search" class="form-control active" value="@ViewBag.CurrentFilter">
-                    <label class="form-label" for="form1" style="margin-left: 0px;">Search</label>
+                    <label class="form-label" style="margin-left: 0px;">Search</label>
                     <div class="form-notch"><div class="form-notch-leading" style="width: 9px;"></div><div class="form-notch-middle" style="width: 47.2px;"></div><div class="form-notch-trailing"></div></div>
                 </div>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            @if (!string.IsNullOrEmpty(ViewBag.CurrentFilter))
-            {
-                <label class="form-label" for="form1" style="margin-left: 0px;">Showing results for "@ViewBag.CurrentFilter"</label>
-            }
+            <div class="form-check">
+                @if (ViewBag.IncludeArchived)
+                {
+                    <input class="form-check-input" type="checkbox" value="true" id="includeArchived" checked name="includeArchived"/>
+                }
+                else
+                {
+                    <input class="form-check-input" type="checkbox" value="true" id="includeArchived" name="includeArchived"/>
+                }
+                <label class="form-label" for="includeArchived">Include archived</label>
+            </div>
         </div>
     </section>
 }
@@ -56,7 +63,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.OrderBy(m => m.DateSubmitted))
+        @foreach (var item in Model)
         {
             <tr style="cursor: pointer" onclick="window.location.href = 'Details/@item.Id'">
                 <td>

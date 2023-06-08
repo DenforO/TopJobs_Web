@@ -66,7 +66,7 @@ namespace TopJobs.Controllers
             return View(await jobAds.ToListAsync());
         }
         // GET: JobAds/MyJobAds
-        public async Task<IActionResult> MyJobAds(string currentFilter, string searchString, int? page = 1)
+        public async Task<IActionResult> MyJobAds(string currentFilter, string searchString, bool includeArchived, int? page = 1)
         {
             if (page != null && page < 1)
             {
@@ -82,11 +82,12 @@ namespace TopJobs.Controllers
                 searchString = currentFilter;
             }
             ViewBag.CurrentFilter = searchString;
+            ViewBag.IncludeArchived = includeArchived;
             var usr = await GetCurrentUserAsync();
             var employerCompanies = GetCompaniesByEmloyer(usr);
             var jobAds = _context.JobAds
                                     .Include(j => j.Company)
-                                    .Where(j => !j.Archived && employerCompanies.Contains(j.Company)) // only employer's job ads
+                                    .Where(j => (!j.Archived | includeArchived) && employerCompanies.Contains(j.Company)) // only employer's job ads
                                     .Include(j => j.JobApplications)
                                     .ThenInclude(a => a.User)
                                     .Include(j => j.Preference)
