@@ -14,10 +14,29 @@
 </p>
 @using (Html.BeginForm("MyJobAds", "JobAds", FormMethod.Get))
 {
-    <p>
-        Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+    @*<p>
+        @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
         <input type="submit" value="Search" />
-    </p>
+    </p>*@
+
+    <section class="w-100 p-4 pb-4 d-flex align-items-baseline flex-column">
+        <div>
+            <div class="input-group">
+                <div class="form-outline">
+                    <input id="SearchString" name="searchString" type="search" class="form-control active" value="@ViewBag.CurrentFilter">
+                    <label class="form-label" for="form1" style="margin-left: 0px;">Search</label>
+                    <div class="form-notch"><div class="form-notch-leading" style="width: 9px;"></div><div class="form-notch-middle" style="width: 47.2px;"></div><div class="form-notch-trailing"></div></div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentFilter))
+            {
+                <label class="form-label" for="form1" style="margin-left: 0px;">Showing results for "@ViewBag.CurrentFilter"</label>
+            }
+        </div>
+    </section>
 }
 <table class="table table-striped">
     <thead>
@@ -31,13 +50,15 @@
             <th>
                 Candidates
             </th>
-            <th></th>
+            <th>
+                Archived
+            </th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model.OrderBy(m => m.DateSubmitted))
         {
-            <tr>
+            <tr style="cursor: pointer" onclick="window.location.href = 'Details/@item.Id'">
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
@@ -47,9 +68,14 @@
                 <td>
                     @item.JobApplications.Count()
                 </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                </td>
+                @if (item.Archived)
+                {
+                    <td>Yes</td>
+                }
+                else
+                {
+                    <td>No</td>
+                }
             </tr>
         }
     </tbody>
@@ -68,3 +94,33 @@
         DisplayLinkToNextPage = PagedListDisplayMode.Always
     })
 </nav>
+
+<script>
+    const searchFocus = document.getElementById('SearchString');
+    const keys = [
+        { keyCode: 'AltLeft', isTriggered: false },
+        { keyCode: 'ControlLeft', isTriggered: false },
+    ];
+
+    window.addEventListener('keydown', (e) => {
+        keys.forEach((obj) => {
+            if (obj.keyCode === e.code) {
+                obj.isTriggered = true;
+            }
+        });
+
+        const shortcutTriggered = keys.filter((obj) => obj.isTriggered).length === keys.length;
+
+        if (shortcutTriggered) {
+            searchFocus.focus();
+        }
+    });
+
+    window.addEventListener('keyup', (e) => {
+        keys.forEach((obj) => {
+            if (obj.keyCode === e.code) {
+                obj.isTriggered = false;
+            }
+        });
+    });
+</script>

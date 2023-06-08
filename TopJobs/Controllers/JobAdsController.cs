@@ -47,6 +47,7 @@ namespace TopJobs.Controllers
             else
             {
                 jobAds = _context.JobAds
+                                        .Where(j => !j.Archived)
                                         .Include(j => j.Company)
                                         .Include(j => j.Preference)
                                         .Include(j => j.Preference.PositionType)
@@ -85,19 +86,21 @@ namespace TopJobs.Controllers
             var employerCompanies = GetCompaniesByEmloyer(usr);
             var jobAds = _context.JobAds
                                     .Include(j => j.Company)
-                                    .Where(j => employerCompanies.Contains(j.Company)) // only employer's job ads
+                                    .Where(j => !j.Archived && employerCompanies.Contains(j.Company)) // only employer's job ads
                                     .Include(j => j.JobApplications)
                                     .ThenInclude(a => a.User)
                                     .Include(j => j.Preference)
                                     .Include(j => j.Preference.PositionType)
                                     .Include(j => j.Preference.TechnologyPreferences)
                                     .ThenInclude(tp => tp.Technology)
+                                    .OrderByDescending(j => j.Archived)
+                                    .ThenBy(j => j.DateSubmitted)
                                     .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
             {
                 searchString = searchString.ToUpper();
-                jobAds = jobAds.Where(j => j.Name.ToUpper().Contains(searchString)|| j.Preference.PositionType.Name.ToUpper().Contains(searchString));
+                jobAds = jobAds.Where(j => j.Name.ToUpper().Contains(searchString) || j.Preference.PositionType.Name.ToUpper().Contains(searchString));
             }
 
             var userPreference = _context.Preferences
@@ -112,6 +115,8 @@ namespace TopJobs.Controllers
             var pageSize = 5;
             return View(jobAds.ToPagedList(page ?? 1, pageSize));
         }
+
+
 
         public async Task<IActionResult> Charts()
         {
@@ -178,6 +183,19 @@ namespace TopJobs.Controllers
             }
 
             return View(jobAd);
+        }
+
+        // POST: JobAds/Accept/5
+        [HttpPost, ActionName("Archive")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Archive(int jobAdId)
+        {
+            var jobAd = await _context.JobAds.FindAsync(jobAdId);
+
+            jobAd.Archived = true;
+            await _context.SaveChangesAsync();
+
+            return RedirectToRoute(new { action = "MyJobAds", controller = "JobAds", jobAdId = jobAdId });
         }
 
         // GET: JobAds/Create
