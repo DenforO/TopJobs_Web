@@ -22,7 +22,17 @@
         Top<input style="display:inline" type="number" id="quantity" name="quantity" min="1" max="15" value="5"> most popular technologies
     </h3>
 </div>
-
+<div style="display:flex">
+    <div style="flex:1">
+        @Html.React("Components.TrendChart", new
+        {
+        data = "[{ \"name\": \"JavaScript\", \"value\": 192 }," +
+        "{ \"name\": \"Java\", \"value\": 155 }," +
+        "{ \"name\": \"C#\", \"value\": 103 }," +
+        "{ \"name\": \"Python\", \"value\": 100 }]"
+        })
+    </div>
+</div>
 
 <script src="/dist/runtime.js"></script>
 <script src="/dist/vendor.js"></script>

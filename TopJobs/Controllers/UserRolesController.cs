@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TopJobs.Data;
 using TopJobs.Models;
 using X.PagedList;
 
@@ -13,10 +14,12 @@ namespace TopJobs.Controllers
 {
     public class UserRolesController : Controller
     {
+        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public UserRolesController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UserRolesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
+            _context = context;
             _roleManager = roleManager;
             _userManager = userManager;
         }
@@ -39,32 +42,26 @@ namespace TopJobs.Controllers
             }
             ViewBag.CurrentFilter = searchString;
 
-            var users = await _userManager.Users.ToListAsync();
+            var users = _context.Users.AsQueryable();
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
                 searchString = searchString.ToUpper();
-                users = users
-                            .Where(u => u.FullName.ToUpper().Contains(searchString) 
-                                     || u.UserName.ToUpper().Contains(searchString)
-                                     || u.NormalizedEmail.Contains(searchString))
-                            .ToList();
+                users = users.Where(u => u.FullName.ToUpper().Contains(searchString) 
+                                      || u.UserName.ToUpper().Contains(searchString)
+                                      || u.NormalizedEmail.Contains(searchString));
             }
 
-            var userRolesViewModel = new List<UserRolesViewModel>();
-            foreach (ApplicationUser user in users)
+            var userRolesViewModel = users.Select(u => new UserRolesViewModel
             {
-                userRolesViewModel.Add(new UserRolesViewModel
-                {
-                    UserId = user.Id,
-                    Email = user.Email,
-                    FullName = user.FullName,
-                    UserName = user.UserName
-                });
-            }
+                UserId = u.Id,
+                Email = u.Email,
+                FullName = u.FullName,
+                UserName = u.UserName
+            });
 
             var pageSize = 5;
-            return View(userRolesViewModel.ToPagedList(page ?? 1, pageSize));
+            return View(await userRolesViewModel.ToPagedListAsync(page ?? 1, pageSize));
         }
 
         [Authorize(Roles = "Admin")]

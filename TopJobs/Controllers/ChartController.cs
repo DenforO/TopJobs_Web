@@ -27,6 +27,14 @@ namespace TopJobs.Controllers
             return _trendsService.GetTechnologyPopularities(5);
         }
 
+        // GET: api/<ChartController>
+        [HttpGet]
+        [Route("TechnologyTrend")]
+        public IEnumerable<TechnologyTrend> GetTechnologyTrend()
+        {
+            return _trendsService.GetTechnologyTrend(4, new DateTime(2020, 05, 10), DateTime.Now);
+        }
+
         // GET api/<ChartController>/5
         [HttpGet("{id}")]
         public string Get(int id)

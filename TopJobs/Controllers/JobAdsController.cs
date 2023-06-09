@@ -114,7 +114,7 @@ namespace TopJobs.Controllers
                 jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
             }
             var pageSize = 5;
-            return View(jobAds.ToPagedList(page ?? 1, pageSize));
+            return View(await jobAds.ToPagedListAsync(page ?? 1, pageSize));
         }
 
 
