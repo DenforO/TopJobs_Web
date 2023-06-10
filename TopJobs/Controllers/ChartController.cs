@@ -34,9 +34,9 @@ namespace TopJobs.Controllers
         // GET: api/<ChartController>
         [HttpGet]
         [Route("TechnologyTrend")]
-        public IEnumerable<TechnologyTrend> GetTechnologyTrend()
+        public IEnumerable<Dictionary<string, object>> GetTechnologyTrend([FromQuery] int[] technologyIds)
         {
-            return _trendsService.GetTechnologyTrend(4, new DateTime(2020, 05, 10), DateTime.Now);
+            return _trendsService.GetTechnologyTrends(new DateTime(2020, 05, 10), DateTime.Now, technologyIds);
         }
 
         // GET api/<ChartController>/5

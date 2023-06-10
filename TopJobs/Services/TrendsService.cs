@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace TopJobs.Services
     public interface ITrendsService
     {
         List<TechnologyPopularity> GetTechnologyPopularities(int numOfTechnologies);
-        List<TechnologyTrend> GetTechnologyTrend(int technologyId, DateTime startDate, DateTime endDate);
+        List<Dictionary<string, object>> GetTechnologyTrends(DateTime startDate, DateTime endDate, params int[] technologyIds);
     }
     public class TrendsService : ITrendsService
     {
@@ -28,16 +29,16 @@ namespace TopJobs.Services
         public List<TechnologyPopularity> GetTechnologyPopularities(int numOfTechnologies)
         {
             var technologyPopularities = (from t in _context.Technologies
-                                         join tp in _context.TechnologyPreferences on t.Id equals tp.TechnologyId
-                                         join p in _context.Preferences on tp.PreferenceId equals p.Id
-                                         join j in _context.JobAds on p.Id equals j.PreferenceId
-                                         group t by t.Name into newGroup
-                                         orderby newGroup.Count() descending
-                                         select new TechnologyPopularity { Name = newGroup.Key, Value = newGroup.Count() }).Take(numOfTechnologies);
+                                          join tp in _context.TechnologyPreferences on t.Id equals tp.TechnologyId
+                                          join p in _context.Preferences on tp.PreferenceId equals p.Id
+                                          join j in _context.JobAds on p.Id equals j.PreferenceId
+                                          group t by t.Name into newGroup
+                                          orderby newGroup.Count() descending
+                                          select new TechnologyPopularity { Name = newGroup.Key, Value = newGroup.Count() }).Take(numOfTechnologies);
             return technologyPopularities.ToList();
         }
 
-        public List<TechnologyTrend> GetTechnologyTrend(int technologyId, DateTime startDate, DateTime endDate)
+        public List<Dictionary<string, object>> GetTechnologyTrends(DateTime startDate, DateTime endDate, params int[] technologyIds)
         {
             //var technology = (from t in _context.Technologies
             //                  where t.Id == technologyId
@@ -46,27 +47,36 @@ namespace TopJobs.Services
             //                  join j in _context.JobAds on p.Id equals j.PreferenceId
             //                  select new TechnologyTrend { TechnologyName = t.Name, });
 
+            var technologies = _context.Technologies.Where(t => technologyIds.Contains(t.Id));
+
             var jobAds = _context.TechnologyPreferences
-                                    .Where(tp => tp.TechnologyId == technologyId)
-                                    .Include(tp => tp.Technology)
-                                    .Include(tp => tp.Preference)
-                                    .ThenInclude(p => p.JobAd)
-                                    .Where(tp => tp.Preference.JobAd != null &&
-                                                 tp.Preference.JobAd.DateSubmitted > startDate &&
-                                                 tp.Preference.JobAd.DateSubmitted < endDate)
-                                    .Select(tp => tp.Preference.JobAd);
+                                        .Where(tp => technologyIds.Contains(tp.TechnologyId))
+                                        .Include(tp => tp.Technology)
+                                        .Include(tp => tp.Preference)
+                                        .ThenInclude(p => p.JobAd)
+                                        .Where(tp => tp.Preference.JobAd != null &&
+                                                     tp.Preference.JobAd.DateSubmitted > startDate &&
+                                                     tp.Preference.JobAd.DateSubmitted < endDate);
 
             var timePeriod = endDate - startDate;
-            var trendData = new List<TechnologyTrend>();
+            var trendData = new List<Dictionary<string, object>>();
+
             for (DateTime i = startDate; i < endDate; i = i.AddMonths(1))
             {
-                var numberOfAds = jobAds.Where(j => j.DateSubmitted.Month == i.Month && j.DateSubmitted.Year == i.Year).Count();
-                trendData.Add(
-                    new TechnologyTrend
-                    {
-                        Month = i.ToString("MMM yy", CultureInfo.InvariantCulture),
-                        Ads = numberOfAds 
-                    });
+                //var numberOfAds = jobAds.Where(j => j.Preference.JobAd.DateSubmitted.Month == i.Month && j.Preference.JobAd.DateSubmitted.Year == i.Year).Count();
+                var monthEntry = new Dictionary<string, object>();
+
+                monthEntry.Add("Month", i.ToString("MMM yy", CultureInfo.InvariantCulture));
+                foreach (var technology in technologies)
+                {
+                    var technologyAds = jobAds.Where(j => j.TechnologyId == technology.Id &&
+                                                        j.Preference.JobAd.DateSubmitted.Month == i.Month &&
+                                                        j.Preference.JobAd.DateSubmitted.Year == i.Year);
+
+                    monthEntry.Add(technology.Name, technologyAds.Count());
+
+                }
+                trendData.Add(monthEntry);
             }
             return trendData;
         }

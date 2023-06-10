@@ -87,22 +87,32 @@ const dataJson2 = [
     }
 ];
 
+const getRandomColor = () => {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
 export default function TrendChart() {
     const [data, setData] = useState(dataJson2);
-    const [technologies, setTechnologies] = useState(['ads', 'uv']);
+    const [technologies, setTechnologies] = useState(['C#', 'SQL', 'JavaScript']);
 
-    //const fetchData = () => {
-    //    fetch(window.location.origin + "/api/Trends/TechnologyTrend")
-    //        .then(response => {
-    //            return response.json()
-    //        })
-    //        .then(data => {
-    //            setData(data)
-    //        })
-    //}
-    //useEffect(() => {
-    //    fetchData()
-    //}, [])
+    const fetchData = () => {
+        fetch(window.location.origin + "/api/Trends/TechnologyTrend")
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                setData(data)
+            })
+    }
+
+    useEffect(() => {
+        fetchData()
+    }, [])
 
     if (data != null) {
         return (
@@ -125,7 +135,7 @@ export default function TrendChart() {
                 <Legend />
                 {
                     technologies.map((id) => {
-                        return (<Line key={`line_${id}`} dataKey={`${id}`} />)
+                        return (<Line stroke={getRandomColor()} type="monotone" key={`line_${id}`} dataKey={`${id}`} />)
                     })
                 }
                 {/*<Line*/}
