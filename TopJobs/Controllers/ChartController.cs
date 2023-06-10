@@ -22,9 +22,13 @@ namespace TopJobs.Controllers
 
         // GET: api/<ChartController>
         [HttpGet]
-        public IEnumerable<TechnologyPopularity> Get()
+        public IEnumerable<TechnologyPopularity> Get(int? num)
         {
-            return _trendsService.GetTechnologyPopularities(5);
+            if (!num.HasValue)
+            {
+                num = 5;
+            }
+            return _trendsService.GetTechnologyPopularities(num.Value);
         }
 
         // GET: api/<ChartController>
@@ -37,9 +41,9 @@ namespace TopJobs.Controllers
 
         // GET api/<ChartController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IEnumerable<TechnologyPopularity> Get(int num)
         {
-            return "value";
+            return _trendsService.GetTechnologyPopularities(num);
         }
 
         // POST api/<ChartController>

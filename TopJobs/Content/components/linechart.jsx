@@ -9,7 +9,7 @@ import {
     Legend
 } from "recharts";
 
-const data = [
+const dataJson = [
     {
         name: "Page A",
         uv: 4000,
@@ -54,46 +54,90 @@ const data = [
     }
 ];
 
-export default function TrendChart() {
-    const [data, setData] = useState(null);
-
-    const fetchData = () => {
-        fetch(window.location.origin + "/api/Trends/TechnologyTrend")
-            .then(response => {
-                return response.json()
-            })
-            .then(data => {
-                setData(data)
-            })
+const dataJson2 = [
+    {
+        "month": "May 20",
+        "C#": 0,
+        "JavaScript": 5,
+        "SQL": 6
+    },
+    {
+        "month": "Jun 20",
+        "C#": 10,
+        "JavaScript": 4,
+        "SQL": 3
+    },
+    {
+        "month": "Jul 20",
+        "C#": 5,
+        "JavaScript": 5,
+        "SQL": 7
+    },
+    {
+        "month": "Aug 20",
+        "C#": 9,
+        "JavaScript": 1,
+        "SQL": 6
+    },
+    {
+        "month": "Sep 20",
+        "C#": 4,
+        "JavaScript": 3,
+        "SQL": 4
     }
-    useEffect(() => {
-        fetchData()
-    }, [])
+];
 
-    return (
-        <LineChart
-            width={1000}
-            height={300}
-            data={data}
-            margin={{
-                top: 15,
-                right: 30,
-                left: 20,
-                bottom: 5
-            }}
-        >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line
-                type="monotone"
-                dataKey="ads"
-                stroke="#8884d8"
-                activeDot={{ r: 8 }}
-            />
-            <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
-        </LineChart>
-    );
+export default function TrendChart() {
+    const [data, setData] = useState(dataJson2);
+    const [technologies, setTechnologies] = useState(['ads', 'uv']);
+
+    //const fetchData = () => {
+    //    fetch(window.location.origin + "/api/Trends/TechnologyTrend")
+    //        .then(response => {
+    //            return response.json()
+    //        })
+    //        .then(data => {
+    //            setData(data)
+    //        })
+    //}
+    //useEffect(() => {
+    //    fetchData()
+    //}, [])
+
+    if (data != null) {
+        return (
+            <LineChart
+                id="test"
+                width={1000}
+                height={300}
+                data={data}
+                margin={{
+                    top: 15,
+                    right: 30,
+                    left: 20,
+                    bottom: 5
+                }}
+            >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                {
+                    technologies.map((id) => {
+                        return (<Line key={`line_${id}`} dataKey={`${id}`} />)
+                    })
+                }
+                {/*<Line*/}
+                {/*    type="monotone"*/}
+                {/*    dataKey={technologies[0]}*/}
+                {/*    stroke="#8884d8"*/}
+                {/*    activeDot={{ r: 8 }}*/}
+                {/*    animationDuration={5000}*/}
+                {/*/>*/}
+                {/*<Line type="monotone" dataKey={technologies[1]} stroke="#82ca9d" />*/}
+            </LineChart>
+        );
+    }
+    return null; //if line chart gets rendered before data is fetched, animation gets broken
 }

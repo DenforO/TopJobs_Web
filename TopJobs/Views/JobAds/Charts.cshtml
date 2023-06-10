@@ -8,20 +8,10 @@
     <h1>Charts</h1>
 </div>
 
-<div style="display:flex">
-    <div style="flex:1">
-        @Html.React("Components.PieChartDemo", new
-        {
-        data = "[{ \"name\": \"JavaScript\", \"value\": 192 }," +
-        "{ \"name\": \"Java\", \"value\": 155 }," +
-        "{ \"name\": \"C#\", \"value\": 103 }," +
-        "{ \"name\": \"Python\", \"value\": 100 }]"
-        })
-    </div>
-    <h3 style="flex:2;margin-left:50px;padding-top:180px" ">
-        Top<input style="display:inline" type="number" id="quantity" name="quantity" min="1" max="15" value="5"> most popular technologies
-    </h3>
-</div>
+@Html.React("Components.PieChartFull", new
+{
+num = 7
+})
 <div style="display:flex">
     <div style="flex:1">
         @Html.React("Components.TrendChart", new
