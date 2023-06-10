@@ -15,7 +15,7 @@ namespace TopJobs.Services
     public interface ITrendsService
     {
         List<TechnologyPopularity> GetTechnologyPopularities(int numOfTechnologies);
-        List<Dictionary<string, object>> GetTechnologyTrends(DateTime startDate, DateTime endDate, params int[] technologyIds);
+        List<Dictionary<string, object>> GetTechnologyTrends(DateTime startDate, DateTime endDate, params int[] techIds);
     }
     public class TrendsService : ITrendsService
     {
@@ -66,7 +66,7 @@ namespace TopJobs.Services
                 //var numberOfAds = jobAds.Where(j => j.Preference.JobAd.DateSubmitted.Month == i.Month && j.Preference.JobAd.DateSubmitted.Year == i.Year).Count();
                 var monthEntry = new Dictionary<string, object>();
 
-                monthEntry.Add("Month", i.ToString("MMM yy", CultureInfo.InvariantCulture));
+                monthEntry.Add("Month", i.ToString("MMM yyyy", CultureInfo.InvariantCulture));
                 foreach (var technology in technologies)
                 {
                     var technologyAds = jobAds.Where(j => j.TechnologyId == technology.Id &&

@@ -96,12 +96,39 @@ const getRandomColor = () => {
     return color;
 }
 
+function Button(props) {
+    return (
+        <button onClick={props.onClickFunction}>Add</button>
+    )
+}
+
+function Input(props) {
+    const [inputValue, setInputValue] = useState(['8', 'CSS']);
+    
+    return (
+        <div>
+            <input type="text" onKeyUp={(e) => setInputValue(e.target.value.split(','))} />
+            <Button onClickFunction={() => props.addTechnology(inputValue)} />
+        </div>
+    )
+}
+
 export default function TrendChart() {
-    const [data, setData] = useState(dataJson2);
-    const [technologies, setTechnologies] = useState(['C#', 'SQL', 'JavaScript']);
+    const [data, setData] = useState();
+    const [technologies, setTechnologies] = useState([['1', 'C#'], ['2', 'C++'], ['3', 'C'], ['4', 'Python']]);
+
+    const addTechnology = (tech) => {
+        setTechnologies([
+            ...technologies,
+            [tech[0], tech[1]]
+        ]);
+    }
 
     const fetchData = () => {
-        fetch(window.location.origin + "/api/Trends/TechnologyTrend")
+        let queryParameters = "";
+        technologies.forEach(technology => queryParameters += ("techId=" + technology[0] + "&"));
+        console.log(queryParameters)
+        fetch(window.location.origin + "/api/Trends/TechnologyTrend?" + queryParameters)
             .then(response => {
                 return response.json()
             })
@@ -112,41 +139,44 @@ export default function TrendChart() {
 
     useEffect(() => {
         fetchData()
-    }, [])
+    }, [technologies])
 
     if (data != null) {
         return (
-            <LineChart
-                id="test"
-                width={1000}
-                height={300}
-                data={data}
-                margin={{
-                    top: 15,
-                    right: 30,
-                    left: 20,
-                    bottom: 5
-                }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                {
-                    technologies.map((id) => {
-                        return (<Line stroke={getRandomColor()} type="monotone" key={`line_${id}`} dataKey={`${id}`} />)
-                    })
-                }
-                {/*<Line*/}
-                {/*    type="monotone"*/}
-                {/*    dataKey={technologies[0]}*/}
-                {/*    stroke="#8884d8"*/}
-                {/*    activeDot={{ r: 8 }}*/}
-                {/*    animationDuration={5000}*/}
-                {/*/>*/}
-                {/*<Line type="monotone" dataKey={technologies[1]} stroke="#82ca9d" />*/}
-            </LineChart>
+            <div>
+                <LineChart
+                    id="test"
+                    width={1000}
+                    height={300}
+                    data={data}
+                    margin={{
+                        top: 15,
+                        right: 30,
+                        left: 20,
+                        bottom: 5
+                    }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="Month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    {
+                        technologies.map((technology) => {
+                            return (<Line stroke={getRandomColor()} type="monotone" key={`line_${technology[1]}`} dataKey={`${technology[1]}`} />)
+                        })
+                    }
+                    {/*<Line*/}
+                    {/*    type="monotone"*/}
+                    {/*    dataKey={technologies[0]}*/}
+                    {/*    stroke="#8884d8"*/}
+                    {/*    activeDot={{ r: 8 }}*/}
+                    {/*    animationDuration={5000}*/}
+                    {/*/>*/}
+                    {/*<Line type="monotone" dataKey={technologies[1]} stroke="#82ca9d" />*/}
+                </LineChart>
+                <Input addTechnology={addTechnology} />
+            </div>
         );
     }
     return null; //if line chart gets rendered before data is fetched, animation gets broken
