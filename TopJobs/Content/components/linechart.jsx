@@ -174,7 +174,6 @@ function AutocompleteInput(props) {
 export default function TrendChart() {
     const [data, setData] = useState();
     const [technologies, setTechnologies] = useState([{ value: '1', label: 'C#' }, { value: '2', label: 'C++' }]);
-    const [colors, setColors] = useState([]);
 
     const addTechnology = (tech) => {
         console.log('tech');
@@ -202,6 +201,7 @@ export default function TrendChart() {
     useEffect(() => {
         fetchData()
     }, [technologies])
+
     if (data != null) {
         return (
             <div>

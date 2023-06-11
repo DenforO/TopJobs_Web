@@ -1,4 +1,6 @@
 ﻿@using React.AspNet
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> userManager
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,6 +14,7 @@
           rel="stylesheet" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
 </head>
+@*<body style="background-color: #ece4f5 ">*@
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -24,12 +27,21 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
+                        @*<li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        </li>*@
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            @if (User.IsInRole("Applicant"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-userId="@userManager.GetUserAsync(User).Result.Id">Profile</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -44,23 +56,26 @@
     <!-- Footer -->
     <footer class="text-center text-white" style="background-color: #0a4275;">
         <!-- Grid container -->
-        <div class="container p-4 pb-0">
-            <!-- Section: CTA -->
-            <section class="">
-                <p class="d-flex justify-content-center align-items-center">
-                    <span class="me-3">Register for free</span>
-                    <button type="button" class="btn btn-outline-light btn-rounded" onclick="window.location.href='../Identity/Account/Login'">
-                        Sign up!
-                    </button>
-                </p>
-            </section>
-            <!-- Section: CTA -->
-        </div>
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="container p-4 pb-0">
+                <!-- Section: CTA -->
+                <section class="">
+                    <p class="d-flex justify-content-center align-items-center">
+                        <span class="me-3">Register for free</span>
+                        <button type="button" class="btn btn-outline-light btn-rounded" onclick="window.location.href='../Identity/Account/Login'">
+                            Sign up!
+                        </button>
+                    </p>
+                </section>
+                <!-- Section: CTA -->
+            </div>
+        }
         <!-- Grid container -->
         <!-- Copyright -->
         <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            © 2020 Copyright:
-            <a class="text-white">MDBootstrap.com</a>
+            © 2023 Copyright:
+            <a class="text-white">TopJobs.com</a>
         </div>
         <!-- Copyright -->
     </footer>
