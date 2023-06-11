@@ -39,7 +39,7 @@ namespace TopJobs.Services
             var technologyPopularities = (from t in _context.Technologies
                                           join tp in _context.TechnologyPreferences on t.Id equals tp.TechnologyId
                                           join p in _context.Preferences on tp.PreferenceId equals p.Id
-                                          join j in _context.JobAds on p.Id equals j.PreferenceId
+                                          join j in (from j in _context.JobAds where !j.Archived select j) on p.Id equals j.PreferenceId
                                           group t by t.Name into newGroup
                                           orderby newGroup.Count() descending
                                           select new TechnologyPopularity { Name = newGroup.Key, Value = newGroup.Count() }).Take(numOfTechnologies);
