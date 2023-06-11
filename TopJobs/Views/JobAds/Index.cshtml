@@ -7,37 +7,41 @@
 <h1>Job Ads</h1>
 <hr />
 @*<p>
-    <a asp-action="Create">Create New</a>
-</p>*@
-<div class="row row-cols-1 row-cols-md-5 g-4">
-    @foreach (var jobAd in Model)
-    {
-        <div class="col">
-            <div class="card h-100">
-                <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                    @if (jobAd.Company.Logo != null)
-                    {
-                        <img src="data:image/*;base64,@(Convert.ToBase64String(jobAd.Company.Logo))" class="img-fluid" alt="@jobAd.Company.Name logo">
-                    }
-                    else
-                    {
-                        <img src="/img/profile-logo.png" class="img-fluid" alt="@jobAd.Company.Name logo" />
-                    }
-                    <a asp-action="Details" asp-route-id="@jobAd.Id">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                    </a>
-                </div>
-                <div class="card-body">
-                    <p class="mb-1" style="font-size: .77rem;">@jobAd.MatchingPercentage%</p>
-                    <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width:@jobAd.MatchingPercentage%" aria-valuenow="80"
-                             aria-valuemin="0" aria-valuemax="100"></div>
+        <a asp-action="Create">Create New</a>
+    </p>*@
+
+<div class="card" style="background-color: #f4f4f4; padding:20px">
+    <div class="row row-cols-1 row-cols-md-5 g-4">
+        @foreach (var jobAd in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+                        @if (jobAd.Company.Logo != null)
+                        {
+                            <img src="data:image/*;base64,@(Convert.ToBase64String(jobAd.Company.Logo))" class="img-fluid" alt="@jobAd.Company.Name logo">
+                        }
+                        else
+                        {
+                            <img src="/img/profile-logo.png" class="img-fluid" alt="@jobAd.Company.Name logo" />
+                        }
+                        <a asp-action="Details" asp-route-id="@jobAd.Id">
+                            <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                        </a>
                     </div>
-                    <h5 class="card-title" style="margin-top:10px">@jobAd.Name</h5>
+                    <div class="card-body">
+                        <p class="mb-1" style="font-size: .77rem;">@jobAd.MatchingPercentage%</p>
+                        <div class="progress rounded" style="height: 5px;">
+                            <div class="progress-bar" role="progressbar" style="width:@jobAd.MatchingPercentage%" aria-valuenow="80"
+                                 aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <h5 class="card-title" style="margin-top:10px">@jobAd.Name</h5>
+                    </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
+
 </div>
 <nav>
     @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, currentFilter = ViewBag.CurrentFilter }), new PagedListRenderOptions()

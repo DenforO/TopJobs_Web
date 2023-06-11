@@ -13,20 +13,25 @@
 
 
 <h3 style="margin-top:80px; text-align:center">Check out the leading technologies among the current job ads</h3>
-@Html.React("Components.PieChartFull", new
-{
-num = 7
-})
+
+<div class="card" style="background-color: #f4f4f4; padding:20px; margin-top:10px">
+    @Html.React("Components.PieChartFull", new
+    {
+    num = 7
+    })
+</div>
 <h3 style="text-align:center; margin-top:40px">Compare the trends for any specific technologies</h3>
 <div style="display:flex">
-    <div style="flex:1">
-        @Html.React("Components.TrendChart", new
-        {
-        data = "[{ \"name\": \"JavaScript\", \"value\": 192 }," +
-        "{ \"name\": \"Java\", \"value\": 155 }," +
-        "{ \"name\": \"C#\", \"value\": 103 }," +
-        "{ \"name\": \"Python\", \"value\": 100 }]"
-        })
+    <div class="card" style="background-color: #f4f4f4; padding:20px; margin-top:10px">
+        <div style="flex:1">
+            @Html.React("Components.TrendChart", new
+            {
+            data = "[{ \"name\": \"JavaScript\", \"value\": 192 }," +
+            "{ \"name\": \"Java\", \"value\": 155 }," +
+            "{ \"name\": \"C#\", \"value\": 103 }," +
+            "{ \"name\": \"Python\", \"value\": 100 }]"
+            })
+        </div>
     </div>
 </div>
 

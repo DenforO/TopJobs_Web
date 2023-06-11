@@ -37,35 +37,37 @@
         </div>
     </section>
 }
-<div class="row row-cols-1 row-cols-md-5 g-4">
-    @foreach (var company in Model)
-    {
-        <div class="col">
-            <div class="card h-100">
-                <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                    @if (company.Logo != null)
+<div class="card" style="background-color: #f4f4f4; padding:20px; ">
+    <div class="row row-cols-1 row-cols-md-5 g-4">
+        @foreach (var company in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+                        @if (company.Logo != null)
+                        {
+                            <img src="data:image/*;base64,@(Convert.ToBase64String(company.Logo))" class="img-fluid" alt="@company.Name logo">
+                        }
+                        else
+                        {
+                            <img src="/img/profile-logo.png" class="img-fluid" alt="@company.Name logo" />
+                        }
+                        <a asp-action="Details" asp-route-id="@company.Id">
+                            <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@company.Name</h5>
+                        <p class="card-text">@company.Description</p>
+                    </div>
+                    @if (User.IsInRole("Admin"))
                     {
-                        <img src="data:image/*;base64,@(Convert.ToBase64String(company.Logo))" class="img-fluid" alt="@company.Name logo">
+                        <a asp-action="Edit" asp-route-id="@company.Id" class="btn btn-primary" style="margin:15px">Edit</a>
                     }
-                    else
-                    {
-                        <img src="/img/profile-logo.png" class="img-fluid" alt="@company.Name logo" />
-                    }
-                    <a asp-action="Details" asp-route-id="@company.Id">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                    </a>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">@company.Name</h5>
-                    <p class="card-text">@company.Description</p>
-                </div>
-                @if (User.IsInRole("Admin"))
-                {
-                    <a asp-action="Edit" asp-route-id="@company.Id" class="btn btn-primary" style="margin:10px 0 0 20px">Edit</a>
-                }
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 <nav>
     @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, currentFilter = ViewBag.CurrentFilter }), new PagedListRenderOptions()

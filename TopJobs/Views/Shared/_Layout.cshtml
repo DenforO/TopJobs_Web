@@ -14,8 +14,8 @@
           rel="stylesheet" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
 </head>
-@*<body style="background-color: #ece4f5 ">*@
-<body>
+<body style="background-color: #e3e3e3 ">
+@*<body>*@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
@@ -44,6 +44,24 @@
                                     <a class="nav-link text-dark" asp-controller="JobAds" asp-action="Charts">Charts</a>
                                 </li>
                             }
+                            else if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="UserRoles" asp-action="Index">Users</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="JobAds" asp-action="MyJobAds">Job Ads</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-userId="@userManager.GetUserAsync(User).Result.Id">Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="JobExperienceEntries" asp-action="Unapproved">Approvals</a>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Companies" asp-action="Index">Companies</a>
                             </li>
@@ -55,7 +73,9 @@
     </header>
     <div class="container" style="min-height:33em">
         <main role="main" class="pb-3">
-            @RenderBody()
+            <div class="card" style="padding:20px">
+                @RenderBody()
+            </div>
         </main>
     </div>
 

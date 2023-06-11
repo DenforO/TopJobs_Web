@@ -42,14 +42,14 @@ namespace TopJobs.Controllers
             }
             ViewBag.CurrentFilter = searchString;
 
-            var users = _context.Users.AsQueryable();
+            var users = _context.Users.ToList();
 
             if (!string.IsNullOrEmpty(searchString))
             {
                 searchString = searchString.ToUpper();
                 users = users.Where(u => u.FullName.ToUpper().Contains(searchString) 
                                       || u.UserName.ToUpper().Contains(searchString)
-                                      || u.NormalizedEmail.Contains(searchString));
+                                      || u.NormalizedEmail.Contains(searchString)).ToList();
             }
 
             var userRolesViewModel = users.Select(u => new UserRolesViewModel
