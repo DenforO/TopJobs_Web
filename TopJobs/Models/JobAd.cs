@@ -22,6 +22,8 @@ namespace TopJobs.Models
         public float RequiredExperience { get; set; }
         public ICollection<JobApplication> JobApplications { get; set; }
 
+        public bool Archived { get; set; }
+
         [NotMapped]
         public int MatchingPercentage { set; get; }
 

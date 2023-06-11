@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using TopJobs.Data;
+using TopJobs.Methods;
 using TopJobs.Models;
+using TopJobs.ViewModels;
 
 namespace TopJobs.Controllers
 {
@@ -57,11 +61,20 @@ namespace TopJobs.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,PositionTypeId,WorkingHours,FlexibleSchedule,WorkFromHome")] Preference preference)
+        public async Task<IActionResult> Create([Bind("Id,PositionTypeId,WorkingHours,FlexibleSchedule,WorkFromHome")] Preference preference, string positionTypeName, string positionTypeLevel)
         {
             if (ModelState.IsValid)
             {
+                preference.PositionType = FindOrCreatePositionType(positionTypeName, positionTypeLevel);
+
                 _context.Add(preference);
+                var jobApplication = _context.JobApplications
+                                                        .Include(x => x.User)
+                                                        .Include(x => x.JobAd)
+                                                        .SingleOrDefault(x => x.JobAd.PreferenceId == preference.Id);
+                jobApplication.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(jobApplication.User.Preference, jobApplication.JobAd.Preference);
+                _context.Update(jobApplication);
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -95,7 +108,10 @@ namespace TopJobs.Controllers
                                                             .Select(group => group.Key);
 
             ViewData["Technologies"] = _context.Technologies
-                                                        .ToListAsync().Result;
+                                                        .Include(t => t.TechnologyPreferences)
+                                                            .ThenInclude(tp => tp.Preference)
+                                                        .AsEnumerable()
+                                                        .Select(t => new PreferredTechnologiesViewModel { Technology = t, Selected = t.TechnologyPreferences.Select(tp => tp.PreferenceId).ToList().Contains(preference.Id) });
 
             ViewData["TechnologyPreferences"] = _context.TechnologyPreferences
                                                                             .Where(x => x.PreferenceId == id)
@@ -128,26 +144,71 @@ namespace TopJobs.Controllers
                                                         .FirstOrDefault();
                     if (positionType == null)
                     {
-                        var newPositionType =_context.Add(new PositionType { Level = positionTypeLevel, Name = positionTypeName });
-                        await _context.SaveChangesAsync();
+                        positionType =_context.Add(new PositionType { Level = positionTypeLevel, Name = positionTypeName }).Entity;
                     }
-                    preference.PositionTypeId = _context.PositionTypes
-                                                    .Where(p => p.Level == positionTypeLevel && p.Name == positionTypeName)
-                                                    .FirstOrDefault().Id;
+                    preference.PositionTypeId = positionType.Id;
 
-                    List<string> technologieNames = TechnologiesSelected.Split(";").ToList();
-                    technologieNames.RemoveAt(technologieNames.Count - 1);
-
+                    List<string> technologyNames = TechnologiesSelected.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList();
+                    
                     var oldTechnologyPreferences = _context.TechnologyPreferences.Where(x => x.PreferenceId == id);
                     _context.TechnologyPreferences.RemoveRange(oldTechnologyPreferences);
                     await _context.SaveChangesAsync();
 
-                    foreach (var technology in technologieNames)
+                    foreach (var technology in technologyNames)
                     {
                         int technologyId = _context.Technologies.Where(x => x.Name == technology).First().Id;
                         _context.TechnologyPreferences.Add(new TechnologyPreference { PreferenceId = id, TechnologyId = technologyId });
                         await _context.SaveChangesAsync();
                     }
+
+                    //var user = _context.Users
+                    //                        .Include(u => u.Preference)
+                    //                            .ThenInclude(p => p.PositionType)
+                    //                        .Include(u => u.Preference)
+                    //                            .ThenInclude(p => p.TechnologyPreferences)
+                    //                                .ThenInclude(tp => tp.Technology)
+                    //                        .Include(u => u.JobApplications)
+                    //                            .ThenInclude(j => j.JobAd)
+                    //                                .ThenInclude(a => a.Preference)
+                    //                                    .ThenInclude(p => p.PositionType)
+                    //                        .Include(u => u.JobApplications)
+                    //                            .ThenInclude(j => j.JobAd)
+                    //                                .ThenInclude(a => a.Preference)
+                    //                                    .ThenInclude(p => p.TechnologyPreferences)
+                    //                                        .ThenInclude(tp => tp.Technology)
+                    //                        .FirstOrDefault(x => x.PreferenceId == id);
+                    //List<JobApplication> jobApplications;
+                    //if (user != null)
+                    //{
+                    //    jobApplications = user.JobApplications.ToList();
+                    //}
+                    //else
+                    //{
+                    //    var jobAd = _context.JobAds
+                    //                        .Include(j => j.Preference)
+                    //                            .ThenInclude(p => p.PositionType)
+                    //                        .Include(j => j.Preference)
+                    //                            .ThenInclude(p => p.TechnologyPreferences)
+                    //                                .ThenInclude(tp => tp.Technology)
+                    //                        .Include(j => j.JobApplications)
+                    //                            .ThenInclude(a => a.User)
+                    //                                .ThenInclude(u => u.Preference)
+                    //                                    .ThenInclude(p => p.PositionType)
+                    //                        .Include(j => j.JobApplications)
+                    //                            .ThenInclude(j => j.JobAd)
+                    //                                .ThenInclude(a => a.Preference)
+                    //                                    .ThenInclude(p => p.TechnologyPreferences)
+                    //                                        .ThenInclude(tp => tp.Technology)
+                    //                        .FirstOrDefault(x => x.PreferenceId == id);
+
+                    //    jobApplications = jobAd.JobApplications.ToList();
+                    //}
+
+                    //foreach (var jobApplication in jobApplications)
+                    //{
+                    //    jobApplication.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(jobApplication.User.Preference, jobApplication.JobAd.Preference);
+                    //    _context.Update(jobApplication);
+                    //}
 
                     _context.Update(preference);
                     await _context.SaveChangesAsync();
@@ -202,6 +263,39 @@ namespace TopJobs.Controllers
         private bool PreferenceExists(int id)
         {
             return _context.Preferences.Any(e => e.Id == id);
+        }
+
+        [Produces("application/json")]
+        [HttpGet("search")]
+        [Route("SearchPositions")]
+        public async Task<IActionResult> SearchPositions() // for autocomplete
+        {
+            try
+            {
+                string term = HttpContext.Request.Query["term"].ToString();
+
+                var names = _context.PositionTypes.Where(p => p.Name.Contains(term))
+                        .GroupBy(p => p.Name)
+                        .Select(p => p.First())
+                        .Select(p => new { p.Id, p.Name }).ToListAsync();
+                return Ok(await names);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+        private PositionType FindOrCreatePositionType(string positionTypeName, string positionTypeLevel)
+        {
+            foreach (var positionType in _context.PositionTypes)
+            {
+                if (positionType.Name == positionTypeName && positionType.Level == positionTypeLevel)
+                {
+                    return positionType;
+                }
+            }
+            return _context.PositionTypes.Add(new PositionType { Level = positionTypeLevel, Name = positionTypeName }).Entity;
+
         }
     }
 }

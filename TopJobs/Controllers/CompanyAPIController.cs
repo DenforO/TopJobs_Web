@@ -37,5 +37,57 @@ namespace TopJobs.Controllers
                                 .ThenInclude(p => p.PositionType)
                                 .ToList();
         }
+
+        [Route("GetCompaniesPrefix")]
+        [HttpPost]
+        public IEnumerable<object> GetCompaniesPrefix([FromBody] string prefix)
+        {
+            //Note : you can bind same list from database  
+            List<Company> allCompanies = _context.Companies.ToList();
+
+            var results = allCompanies.Where(x => x.Name.StartsWith(prefix)).Select(x => new { Name = x.Name, Id = x.Id }).ToList();
+
+            return results;
+        }
+
+        [Produces("application/json")]
+        [HttpGet("search")]
+        [Route("Search")]
+        public async Task<IActionResult> Search() // for autocomplete
+        {
+            try
+            {
+                string term = HttpContext.Request.Query["term"].ToString();
+
+                var names = _context.Companies.Where(p => p.Name.Contains(term))
+                        .Select(p => new { p.Id, p.Name }).ToListAsync();
+                return Ok(await names);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+        [Produces("application/json")]
+        [HttpGet("searchPositions")]
+        [Route("SearchPositions")]
+        public async Task<IActionResult> SearchPositions() // for autocomplete
+        {
+            try
+            {
+                string term = HttpContext.Request.Query["term"].ToString();
+
+                var names = _context.PositionTypes
+                        .Select(p => p.Name)
+                        .Distinct()
+                        .Where(p => p.Contains(term))
+                        .ToListAsync();
+                return Ok(await names);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
     }
 }

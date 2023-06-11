@@ -5,7 +5,8 @@ import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 
 import RootComponent from './home.jsx';
-import PieChartDemo from './piechart.jsx';
+import PieChartFull from './piechart.jsx';
+import TrendChart from './linechart.jsx';
 
 // any css-in-js or other libraries you want to use server-side
 import { ServerStyleSheet } from 'styled-components';
@@ -19,4 +20,4 @@ global.ReactDOMServer = ReactDOMServer;
 global.Styled = { ServerStyleSheet };
 global.Helmet = Helmet;
 
-global.Components = { RootComponent, PieChartDemo };
+global.Components = { RootComponent, PieChartFull, TrendChart };

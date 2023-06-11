@@ -11,6 +11,8 @@ using TopJobs.Data;
 using TopJobs.Models;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
+using X.PagedList;
 
 namespace TopJobs.Controllers
 {
@@ -24,9 +26,41 @@ namespace TopJobs.Controllers
         }
 
         // GET: Companies
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string currentFilter, string searchString, int? page = 1)
         {
-            return View(await _context.Companies.ToListAsync());
+            if (page != null && page < 1)
+            {
+                page = 1;
+            }
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewBag.CurrentFilter = searchString;
+            var companies = _context.Companies.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToUpper();
+                companies = companies.Where(c => c.Name.ToUpper().Contains(searchString));
+            }
+            var pageSize = 5;
+            return View(await companies.ToPagedListAsync(page ?? 1, pageSize));
+        }
+        [HttpPost]
+        public JsonResult Index2(string prefix)
+        {
+            //Note : you can bind same list from database  
+            List<Company> allCompanies = _context.Companies.ToList();
+
+            var results = allCompanies.Where(x => x.Name.StartsWith(prefix)).Select(x => new { Name = x.Name, Id = x.Id.ToString()}).ToList();
+
+            return Json(results, System.Web.Mvc.JsonRequestBehavior.AllowGet);
         }
 
         // GET: Companies/Details/5
@@ -48,6 +82,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: Companies/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -62,6 +97,16 @@ namespace TopJobs.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (Request.Form.Files.Count > 0)
+                {
+                    IFormFile file = Request.Form.Files.FirstOrDefault();
+                    using (var dataStream = new MemoryStream())
+                    {
+                        await file.CopyToAsync(dataStream);
+                        company.Logo = dataStream.ToArray();
+                    }
+                }
+
                 _context.Add(company);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -70,6 +115,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: Companies/Edit/5
+        [Authorize(Roles = "Employer,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -131,6 +177,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: Companies/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

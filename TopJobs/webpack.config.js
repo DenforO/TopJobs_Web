@@ -33,6 +33,9 @@ module.exports = {
 			},
 		],
 	},
+	resolve: {
+		aliasFields: []
+	},
 	plugins: [
 		new ManifestPlugin({
 			fileName: 'asset-manifest.json',

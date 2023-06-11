@@ -1,65 +1,85 @@
-﻿@model IEnumerable<TopJobs.Models.Company>
+﻿@model IPagedList<TopJobs.Models.Company>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Companies";
 }
 
-<h1>Index</h1>
+<div style="display:flex">
+    <h1>Companies</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.City)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Logo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SiteUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Verified)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.City)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Logo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SiteUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Verified)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+    @if (User.IsInRole("Admin"))
+    {
+        <p>
+            <a asp-action="Create" class="btn btn-primary" style="margin:10px 0 0 20px">Create New</a>
+        </p>
+    }
+</div>
+
+@using (Html.BeginForm("Index", "Companies", FormMethod.Get))
+{
+    @*<p>
+            @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+            <input type="submit" value="Search" />
+        </p>*@
+
+    <section class="w-100 p-5 pb-5 d-flex align-items-center flex-column">
+        <div>
+            <div class="input-group">
+                <div class="form-outline">
+                    <input id="SearchString" name="searchString" type="search" class="form-control active" value="@ViewBag.CurrentFilter">
+                    <label class="form-label" style="margin-left: 0px;">Search</label>
+                    <div class="form-notch"><div class="form-notch-leading" style="width: 9px;"></div><div class="form-notch-middle" style="width: 47.2px;"></div><div class="form-notch-trailing"></div></div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </section>
 }
-    </tbody>
-</table>
+<div class="card" style="background-color: #f4f4f4; padding:20px; ">
+    <div class="row row-cols-1 row-cols-md-5 g-4">
+        @foreach (var company in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+                        @if (company.Logo != null)
+                        {
+                            <img src="data:image/*;base64,@(Convert.ToBase64String(company.Logo))" class="img-fluid" alt="@company.Name logo">
+                        }
+                        else
+                        {
+                            <img src="/img/profile-logo.png" class="img-fluid" alt="@company.Name logo" />
+                        }
+                        <a asp-action="Details" asp-route-id="@company.Id">
+                            <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@company.Name</h5>
+                        <p class="card-text">@company.Description</p>
+                    </div>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@company.Id" class="btn btn-primary" style="margin:15px">Edit</a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<nav>
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, currentFilter = ViewBag.CurrentFilter }), new PagedListRenderOptions()
+    {
+        ActiveLiElementClass = "active",
+        PageClasses = new[] { "page-link" },
+        LiElementClasses = new[] { "page-item" },
+        UlElementClasses = new[] { "pagination", "justify-content-center", "mt-3" },
+        LinkToNextPageFormat = "Next",
+        LinkToPreviousPageFormat = "Previous",
+        MaximumPageNumbersToDisplay = 5,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always
+    })
+</nav>

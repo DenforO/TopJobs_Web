@@ -6,36 +6,62 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TopJobs.Data;
 using TopJobs.Models;
+using X.PagedList;
 
 namespace TopJobs.Controllers
 {
     public class UserRolesController : Controller
     {
+        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public UserRolesController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UserRolesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
+            _context = context;
             _roleManager = roleManager;
             _userManager = userManager;
         }
 
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string currentFilter, string searchString, int? page = 1)
         {
-            var users = await _userManager.Users.ToListAsync();
-            var userRolesViewModel = new List<UserRolesViewModel>();
-            foreach (ApplicationUser user in users)
+            if (page != null && page < 1)
             {
-                var thisViewModel = new UserRolesViewModel();
-                thisViewModel.UserId = user.Id;
-                thisViewModel.Email = user.Email;
-                thisViewModel.FirstName = user.FirstName;
-                thisViewModel.LastName = user.LastName;
-                thisViewModel.Roles = await GetUserRoles(user);
-                userRolesViewModel.Add(thisViewModel);
+                page = 1;
             }
-            return View(userRolesViewModel);
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewBag.CurrentFilter = searchString;
+
+            var users = _context.Users.ToList();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToUpper();
+                users = users.Where(u => u.FullName.ToUpper().Contains(searchString) 
+                                      || u.UserName.ToUpper().Contains(searchString)
+                                      || u.NormalizedEmail.Contains(searchString)).ToList();
+            }
+
+            var userRolesViewModel = users.Select(u => new UserRolesViewModel
+            {
+                UserId = u.Id,
+                Email = u.Email,
+                FullName = u.FullName,
+                UserName = u.UserName
+            });
+
+            var pageSize = 5;
+            return View(await userRolesViewModel.ToPagedListAsync(page ?? 1, pageSize));
         }
 
         [Authorize(Roles = "Admin")]
@@ -49,6 +75,7 @@ namespace TopJobs.Controllers
                 return View("NotFound");
             }
             ViewBag.UserName = user.UserName;
+            ViewBag.User = user;
             var model = new List<ManageUserRolesViewModel>();
             foreach (var role in _roleManager.Roles)
             {

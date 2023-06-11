@@ -1,0 +1,130 @@
+﻿@model IPagedList<TopJobs.Models.JobAd>
+
+@{
+    ViewData["Title"] = "Job Ad";
+}
+
+<h1>Job Ads</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+@using (Html.BeginForm("MyJobAds", "JobAds", FormMethod.Get))
+{
+    @*<p>
+            @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+            <input type="submit" value="Search" />
+        </p>*@
+
+    <section class="w-100 p-4 pb-4 d-flex align-items-baseline flex-column">
+        <div>
+            <div class="input-group">
+                <div class="form-outline">
+                    <input id="SearchString" name="searchString" type="search" class="form-control active" value="@ViewBag.CurrentFilter">
+                    <label class="form-label" style="margin-left: 0px;">Search</label>
+                    <div class="form-notch"><div class="form-notch-leading" style="width: 9px;"></div><div class="form-notch-middle" style="width: 47.2px;"></div><div class="form-notch-trailing"></div></div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="form-check">
+                @if (ViewBag.IncludeArchived)
+                {
+                    <input class="form-check-input" type="checkbox" value="true" id="includeArchived" checked name="includeArchived"/>
+                }
+                else
+                {
+                    <input class="form-check-input" type="checkbox" value="true" id="includeArchived" name="includeArchived"/>
+                }
+                <label class="form-label" for="includeArchived">Include archived</label>
+            </div>
+        </div>
+    </section>
+}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Date Submitted
+            </th>
+            <th>
+                Candidates
+            </th>
+            <th>
+                Archived
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr style="cursor: pointer" onclick="window.location.href = 'Details/@item.Id'">
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @item.DateSubmitted.ToShortDateString()
+                </td>
+                <td>
+                    @item.JobApplications.Count()
+                </td>
+                @if (item.Archived)
+                {
+                    <td>Yes</td>
+                }
+                else
+                {
+                    <td>No</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<nav>
+    @Html.PagedListPager(Model, page => Url.Action("MyJobAds", new { page = page, currentFilter = ViewBag.CurrentFilter }), new PagedListRenderOptions()
+    {
+        ActiveLiElementClass = "active",
+        PageClasses = new[] { "page-link" },
+        LiElementClasses = new[] { "page-item" },
+        UlElementClasses = new[] { "pagination", "justify-content-center", "mt-3" },
+        LinkToNextPageFormat = "Next",
+        LinkToPreviousPageFormat = "Previous",
+        MaximumPageNumbersToDisplay = 5,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always
+    })
+</nav>
+
+<script>
+    const searchFocus = document.getElementById('SearchString');
+    const keys = [
+        { keyCode: 'AltLeft', isTriggered: false },
+        { keyCode: 'ControlLeft', isTriggered: false },
+    ];
+
+    window.addEventListener('keydown', (e) => {
+        keys.forEach((obj) => {
+            if (obj.keyCode === e.code) {
+                obj.isTriggered = true;
+            }
+        });
+
+        const shortcutTriggered = keys.filter((obj) => obj.isTriggered).length === keys.length;
+
+        if (shortcutTriggered) {
+            searchFocus.focus();
+        }
+    });
+
+    window.addEventListener('keyup', (e) => {
+        keys.forEach((obj) => {
+            if (obj.keyCode === e.code) {
+                obj.isTriggered = false;
+            }
+        });
+    });
+</script>

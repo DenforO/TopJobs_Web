@@ -3,103 +3,112 @@
 @{
     ViewData["Title"] = "Edit";
 }
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet" />
+
 
 <h1>Preferences</h1>
 
 <h4>What are you looking for?</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-8">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group" style="display: none;">
-                <label asp-for="PositionTypeId" class="control-label"></label>
-                <select asp-for="PositionTypeId" class="form-control" asp-items="ViewBag.PositionTypeId"></select>
-                <span asp-validation-for="PositionTypeId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label>Position Level</label>
-                <select asp-for="PositionType.Level" name="positionTypeLevel" class="form-control">
-                    @foreach (var level in ViewBag.PositionTypeLevels)
-                    {
-                        <option value="@level">
-                            @level
-                        </option>
-                    }
-                </select>
-                <span asp-validation-for="PositionType.Level" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label>Position Name</label>
-                <select asp-for="PositionType.Name" name="positionTypeName" class="form-control">
-                    @foreach (var name in ViewBag.PositionTypeNames)
-                    {
-                        <option value="@name">
-                            @name
-                        </option>
-                    }
-                </select>
-                <span asp-validation-for="PositionType.Level" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="WorkingHours" class="control-label">Working Hours</label>
-                <input asp-for="WorkingHours" class="form-control" />
-                <span asp-validation-for="WorkingHours" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FlexibleSchedule" class="control-label">Flexible Schedule</label>
-                <select asp-for="FlexibleSchedule" class="form-control">
-                    <option></option>
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-                <span asp-validation-for="FlexibleSchedule" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="WorkFromHome" class="control-label">Work From Home</label>
-                <select asp-for="WorkFromHome" class="form-control">
-                    <option></option>
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-                <span asp-validation-for="WorkFromHome" class="text-danger"></span>
-            </div>
-            <label class="control-label" style="margin-bottom: 15px;">Preferred technologies</label>
-            @for (int i = 0; i < ViewBag.Technologies.Count / 3; i++)
-            {
-                <div class="form-row">
-                    @for (int j = 0; j < 3; j++)
-                    {
-                        bool isChecked = false;
-
-                        <div class="form-group form-check" style="margin-right: auto;">
-                            <label class="form-check-label">
-                                @foreach (var technologyPreference in ViewBag.TechnologyPreferences)
-                                {
-                                    @if (technologyPreference == @ViewBag.Technologies[i * 3 + j].Name)
-                                    {
-                                        <input type="checkbox" class="form-check-input" name="mycheckboxes" value="@ViewBag.Technologies[i * 3 + j].Name" onchange="passSelectedTechnologies()" checked /> @ViewBag.Technologies[i * 3 + j].Name
-                                        isChecked = true;
-                                        continue;
-                                    }
-                                }
-                                @if (!isChecked)
-                                {
-                                    <input type="checkbox" class="form-check-input" name="mycheckboxes" value="@ViewBag.Technologies[i * 3 + j].Name" onchange="passSelectedTechnologies()" /> @ViewBag.Technologies[i * 3 + j].Name
-
-                                }
-
-                            </label>
-                        </div>
-                    }
+            <div class="row">
+                <div class="form-group col">
+                    <label class="control-label">Position</label>
+                    <input type="text" name="positionTypeName" id="positionTypeName" class="form-control">
                 </div>
-            }
+                <div class="form-group col">
+                    <label class="control-label">Position Level</label>
+                    <select name="positionTypeLevel" class="form-control">
+                        <option>-</option>
+                        <option>Intern</option>
+                        <option selected="selected">Junior</option>
+                        <option>Mid</option>
+                        <option>Senior</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="margin-top:30px">
+                <div class="form-group col">
+                    <label asp-for="WorkingHours" class="control-label">Working Hours</label>
+                    <input asp-for="WorkingHours" class="form-control" />
+                    <span asp-validation-for="WorkingHours" class="text-danger"></span>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="FlexibleSchedule" class="control-label">Flexible Schedule</label>
+                    <select asp-for="FlexibleSchedule" class="form-control">
+                        <option></option>
+                        <option value="True">Yes</option>
+                        <option value="False">No</option>
+                    </select>
+                    <span asp-validation-for="FlexibleSchedule" class="text-danger"></span>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="WorkFromHome" class="control-label">Work From Home</label>
+                    <select asp-for="WorkFromHome" class="form-control">
+                        <option></option>
+                        <option value="True">Yes</option>
+                        <option value="False">No</option>
+                    </select>
+                    <span asp-validation-for="WorkFromHome" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:30px">
+                <label class="control-label">Preferred technologies</label>
+                <select data-placeholder="Begin typing a name to filter..." multiple class="chosen-select form-control" name="test">
+                    <option value=""></option>
+                    @foreach (PreferredTechnologiesViewModel technology in ViewBag.Technologies)
+                    {
+                        if (technology.Selected)
+                        {
+                            <option selected>@technology.Technology.Name</option>
+                        }
+                        else
+                        {
+                            <option>@technology.Technology.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            @*<label class="control-label" style="margin-bottom: 15px;">Preferred technologies</label>
+                @for (int i = 0; i < ViewBag.Technologies.Count / 3; i++)
+                {
+                    <div class="form-row">
+                        @for (int j = 0; j < 3; j++)
+                        {
+                            bool isChecked = false;
+
+                            <div class="form-group form-check" style="margin-right: auto;">
+                                <label class="form-check-label">
+                                    @foreach (var technologyPreference in ViewBag.TechnologyPreferences)
+                                    {
+                                        @if (technologyPreference == @ViewBag.Technologies[i * 3 + j].Name)
+                                        {
+                                            <input type="checkbox" class="form-check-input" name="mycheckboxes" value="@ViewBag.Technologies[i * 3 + j].Name" onchange="passSelectedTechnologies()" checked /> @ViewBag.Technologies[i * 3 + j].Name
+                                            isChecked = true;
+                                            continue;
+                                        }
+                                    }
+                                    @if (!isChecked)
+                                    {
+                                        <input type="checkbox" class="form-check-input" name="mycheckboxes" value="@ViewBag.Technologies[i * 3 + j].Name" onchange="passSelectedTechnologies()" /> @ViewBag.Technologies[i * 3 + j].Name
+
+                                    }
+
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }*@
             <div class="form-group">
-                <input name="TechnologiesSelected" for="TechnologiesSelected" value="'none'" style="display: none;"/>
+                <input id="TechnologiesSelected" name="TechnologiesSelected" value="'none'" style="display: none;" />
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" style="margin:40px 0 10px 0" />
             </div>
         </form>
     </div>
@@ -110,18 +119,54 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
     <script type="text/javascript">
-
         window.onload = passSelectedTechnologies();
 
         function passSelectedTechnologies() {
             let selectedTechnologiesString = "";
-            const checkedBoxes = document.querySelectorAll('input[name=mycheckboxes]:checked');
-            checkedBoxes.forEach(addTechnology);
-
-            function addTechnology(technology) {
-                selectedTechnologiesString += technology.value + ';';
-            }
-            document.getElementsByName('TechnologiesSelected')[0].value = selectedTechnologiesString;
+            $('.chosen-choices').children().each(function () {
+                selectedTechnologiesString += this.innerText + ';';
+            });
+            $('#TechnologiesSelected')[0].value = selectedTechnologiesString;
         }
     </script>
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('.chosen-select').on('change', () => passSelectedTechnologies());
+            $(".chosen-select").chosen({
+                no_results_text: "Oops, nothing found!"
+            });
+            $("#positionTypeName").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: '/api/companyapi/searchpositions',
+                        headers: {
+                            "RequestVerificationToken":
+                                $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        data: { "term": request.term },
+                        dataType: "json",
+                        success: function (data) {
+                            response($.map(data, function (item) {
+                                return { value: item, label: item };
+                            }))
+                        },
+                        error: function (xhr, textStatus, error) {
+                            alert(xhr.statusText);
+                        },
+                        failure: function (response) {
+                            alert("failure " + response.responseText);
+                        }
+                    });
+                },
+                select: function (e, i) {
+                    $("#PositionTypeName").val(i.item);
+                },
+                minLength: 1
+            });
+        });
+    </script>
+    <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
 }

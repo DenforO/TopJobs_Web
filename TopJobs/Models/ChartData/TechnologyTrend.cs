@@ -7,7 +7,7 @@ namespace TopJobs.Models.ChartData
 {
     public class TechnologyTrend
     {
-        public string TechnologyName { get; set; }
-        public Dictionary<DateTime, int> MonthlyNumberOfAds { get; set; }
+        public string Month { get; set; }
+        public int Ads { get; set; }
     }
 }

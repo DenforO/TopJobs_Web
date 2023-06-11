@@ -83,12 +83,11 @@ const renderActiveShape = (props) => {
     );
 };
 
-export default function PieChartDemo(props) {
+function PieChartDemo(props) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [data, setData] = useState(null);
-
     const fetchData = () => {
-        fetch("https://localhost:44363/api/Trends")
+        fetch(window.location.origin + "/api/Trends?num=" + props.num)
             .then(response => {
                 return response.json()
             })
@@ -98,7 +97,7 @@ export default function PieChartDemo(props) {
     }
     useEffect(() => {
         fetchData()
-    }, [])
+    }, [props.num])
 
     const onPieEnter = useCallback(
         (_, index) => {
@@ -122,6 +121,30 @@ export default function PieChartDemo(props) {
                 onMouseEnter={onPieEnter}
             />
         </PieChart>
+    );
+}
+
+function Label(props) {
+    return (
+        <h3 style={{ flex: '2', marginLeft: '50px', paddingTop: '180px' }}>
+            Top <input style={{ display: 'inline' }} type="number" id="quantity" name="quantity" min="1" max="9" value={props.value} onChange={(e) => props.handleChange(e)} />
+        </h3 >
+    )
+}
+
+export default function PieChartFull(props) {
+    const [num, setNum] = useState(5);
+    const handleChange = (event) => {
+        setNum(event.target.value);
+    }
+    return (
+
+        <div style={{ display: 'flex' }}>
+            <div style={{ flex: '1' }}>
+                <PieChartDemo num={num} />
+            </div>
+            <Label value={num} handleChange={handleChange} />
+        </div>
     );
 }
 

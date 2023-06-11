@@ -14,7 +14,7 @@ import { StyledComponentsDemo } from './styled-components.jsx';
 import { EmotionDemo } from './emotion.jsx';
 import { ReactJssDemo } from './react-jss.jsx';
 import { LazyLoadDemo } from './lazy-load.jsx';
-import { PieChartDemo } from './piechart.jsx';
+import { PieChartFull } from './piechart.jsx';
 
 class Navbar extends Component {
 	render() {

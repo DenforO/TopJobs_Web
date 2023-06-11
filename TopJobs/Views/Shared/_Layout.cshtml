@@ -1,4 +1,6 @@
 ﻿@using React.AspNet
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> userManager
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,10 +8,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TopJobs</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" />*@
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.3.1/mdb.min.css"
+          rel="stylesheet" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
 </head>
-<body>
+<body style="background-color: #e3e3e3 ">
+@*<body>*@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
@@ -21,32 +27,85 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        @*<li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+        </li>*@
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            @if (User.IsInRole("Applicant"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="JobAds" asp-action="Index">Job Ads</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-userId="@userManager.GetUserAsync(User).Result.Id">Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="JobAds" asp-action="Charts">Charts</a>
+                                </li>
+                            }
+                            else if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="UserRoles" asp-action="Index">Users</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="JobAds" asp-action="MyJobAds">Job Ads</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-userId="@userManager.GetUserAsync(User).Result.Id">Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="JobExperienceEntries" asp-action="Unapproved">Approvals</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Companies" asp-action="Index">Companies</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container" style="min-height:33em">
         <main role="main" class="pb-3">
-            @RenderBody()
-            <script src="/dist/runtime.js"></script>
-            <script src="/dist/vendor.js"></script>
-            <script src="/dist/main.js"></script>
-            @Html.ReactInitJavaScript()
+            <div class="card" style="padding:20px">
+                @RenderBody()
+            </div>
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2022 - TopJobs - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Footer -->
+    <footer class="text-center text-white" style="background-color: #0a4275;">
+        <!-- Grid container -->
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="container p-4 pb-0">
+                <!-- Section: CTA -->
+                <section class="">
+                    <p class="d-flex justify-content-center align-items-center">
+                        <span class="me-3">Register for free</span>
+                        <button type="button" class="btn btn-outline-light btn-rounded" onclick="window.location.href='../Identity/Account/Login'">
+                            Sign up!
+                        </button>
+                    </p>
+                </section>
+                <!-- Section: CTA -->
+            </div>
+        }
+        <!-- Grid container -->
+        <!-- Copyright -->
+        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+            © 2023 Copyright:
+            <a class="text-white">TopJobs.com</a>
         </div>
+        <!-- Copyright -->
     </footer>
+    <!-- Footer -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using TopJobs.Data;
 using TopJobs.Methods;
 using TopJobs.Models;
+using TopJobs.ViewModels;
+using X.PagedList;
 
 namespace TopJobs.Controllers
 {
@@ -25,16 +28,23 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobAds
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page = 1)
         {
-            var jobAds = _context.JobAds
-                                    .Include(j => j.Company)
-                                    .Include(j => j.Preference)
-                                    .Include(j => j.Preference.PositionType)
-                                    .Include(j => j.Preference.TechnologyPreferences)
-                                    .ThenInclude(tp => tp.Technology);
+            if (page != null && page < 1)
+            {
+                page = 1;
+            }
 
             var usr = GetCurrentUserAsync().Result;
+            var jobAds = _context.JobAds
+                                        .Where(j => !j.Archived)
+                                        .Include(j => j.Company)
+                                        .Include(j => j.Preference)
+                                        .Include(j => j.Preference.PositionType)
+                                        .Include(j => j.Preference.TechnologyPreferences)
+                                        .ThenInclude(tp => tp.Technology)
+                                        .ToList();
+            
             var userPreference = _context.Preferences
                                             .Include(p => p.PositionType)
                                             .Include(p => p.TechnologyPreferences)
@@ -44,8 +54,62 @@ namespace TopJobs.Controllers
             {
                 jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
             }
-            return View(await jobAds.ToListAsync());
+            var pageSize = 10;
+            return View(await jobAds.OrderByDescending(j => j.MatchingPercentage).ToPagedListAsync(page ?? 1, pageSize));
         }
+        // GET: JobAds/MyJobAds
+        public async Task<IActionResult> MyJobAds(string currentFilter, string searchString, bool includeArchived, int? page = 1)
+        {
+            if (page != null && page < 1)
+            {
+                page = 1;
+            }
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewBag.CurrentFilter = searchString;
+            ViewBag.IncludeArchived = includeArchived;
+            var usr = await GetCurrentUserAsync();
+            var employerCompanies = GetCompaniesByEmloyer(usr);
+            var jobAds = _context.JobAds
+                                    .Include(j => j.Company)
+                                    .Where(j => (!j.Archived | includeArchived) && employerCompanies.Contains(j.Company)) // only employer's job ads
+                                    .Include(j => j.JobApplications)
+                                    .ThenInclude(a => a.User)
+                                    .Include(j => j.Preference)
+                                    .Include(j => j.Preference.PositionType)
+                                    .Include(j => j.Preference.TechnologyPreferences)
+                                    .ThenInclude(tp => tp.Technology)
+                                    .OrderByDescending(j => j.Archived)
+                                    .ThenBy(j => j.DateSubmitted)
+                                    .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToUpper();
+                jobAds = jobAds.Where(j => j.Name.ToUpper().Contains(searchString) || j.Preference.PositionType.Name.ToUpper().Contains(searchString));
+            }
+
+            var userPreference = _context.Preferences
+                                            .Include(p => p.PositionType)
+                                            .Include(p => p.TechnologyPreferences)
+                                            .ThenInclude(tp => tp.Technology)
+                                            .FirstOrDefault(x => x.Id == usr.PreferenceId);
+            foreach (var jobAd in jobAds)
+            {
+                jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
+            }
+            var pageSize = 5;
+            return View(await jobAds.ToPagedListAsync(page ?? 1, pageSize));
+        }
+
+
 
         public async Task<IActionResult> Charts()
         {
@@ -79,7 +143,7 @@ namespace TopJobs.Controllers
             foreach (var item in technologyNumbers)
             {
                 dataString += item.Value.ToString() + ",";
-                labelsString += item.Key + ": "+ item.Value.ToString() + "|";
+                labelsString += item.Key + ": " + item.Value.ToString() + "|";
             }
 
             ViewBag.DataString = dataString;
@@ -97,6 +161,8 @@ namespace TopJobs.Controllers
                 return NotFound();
             }
 
+            ViewBag.IsEmployer = await _userManager.IsInRoleAsync(await GetCurrentUserAsync(), "Employer");
+
             var jobAd = await _context.JobAds
                 .Include(j => j.Company)
                 .Include(j => j.Preference)
@@ -112,11 +178,27 @@ namespace TopJobs.Controllers
             return View(jobAd);
         }
 
+        // POST: JobAds/Accept/5
+        [HttpPost, ActionName("Archive")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Archive(int jobAdId)
+        {
+            var jobAd = await _context.JobAds.FindAsync(jobAdId);
+
+            jobAd.Archived = true;
+            await _context.SaveChangesAsync();
+
+            return RedirectToRoute(new { action = "MyJobAds", controller = "JobAds", jobAdId = jobAdId });
+        }
+
         // GET: JobAds/Create
         [Authorize(Roles = "Employer")]
         public IActionResult Create()
         {
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
+            var currentUser = GetCurrentUserAsync().Result;
+            var availableCompanies = GetCompaniesByEmloyer(currentUser);
+
+            ViewData["CompanyId"] = new SelectList(availableCompanies, "Id", "Name");
             ViewData["PreferenceId"] = new SelectList(_context.Preferences, "Id", "Id");
             return View();
         }
@@ -148,6 +230,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobAds/Edit/5
+        [Authorize(Roles = "Employer,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -203,6 +286,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobAds/Delete/5
+        [Authorize(Roles = "Employer,Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -233,11 +317,57 @@ namespace TopJobs.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: JobAds/Candidates/5
+        [Authorize(Roles = "Employer,Admin")]
+        public async Task<IActionResult> Candidates(int? jobAdId)
+        {
+            if (jobAdId == null)
+            {
+                return NotFound();
+            }
+
+            var candidates = await _context.JobApplications
+                .Where(j => j.JobAdId == jobAdId)
+                .Include(j => j.JobAd)
+                    .ThenInclude(a => a.Preference)
+                        .ThenInclude(p => p.TechnologyPreferences)
+                            .ThenInclude(tp => tp.Technology)
+                .Include(j => j.JobAd)
+                    .ThenInclude(a => a.Preference)
+                        .ThenInclude(p => p.PositionType)
+                .Include(j => j.User)
+                    .ThenInclude(u => u.Preference)
+                        .ThenInclude(p => p.TechnologyPreferences)
+                            .ThenInclude(tp => tp.Technology)
+                .Include(j => j.User)
+                    .ThenInclude(u => u.Preference)
+                        .ThenInclude(p => p.PositionType)
+                .Select(j => new CandidateViewModel(j))
+                .ToListAsync();
+
+
+            if (candidates == null)
+            {
+                return NotFound();
+            }
+
+            return View(candidates);
+        }
+
         private bool JobAdExists(int id)
         {
             return _context.JobAds.Any(e => e.Id == id);
         }
 
         private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
+
+        private IQueryable<Company> GetCompaniesByEmloyer(ApplicationUser employer)
+        {
+            // if user works for more than one company, all will be listed
+            return _context.JobExperienceEntries
+                                        .Include(j => j.Company)
+                                        .Where(j => (j.UserId == employer.Id) && j.DateFinished == null && j.Verified)
+                                        .Select(j => j.Company);
+        }
     }
 }

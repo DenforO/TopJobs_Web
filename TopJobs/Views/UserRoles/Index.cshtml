@@ -1,17 +1,36 @@
-﻿@using TopJobs.Models
-@model List<TopJobs.Models.UserRolesViewModel>
+﻿@using X.PagedList.Mvc.Common;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@model IPagedList<TopJobs.Models.UserRolesViewModel>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Users";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<h1>User Roles</h1>
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+<h1>Users</h1>
+@using (Html.BeginForm("Index", "UserRoles", FormMethod.Get))
+{
+    <section class="w-100 p-5 pb-5 d-flex align-items-center flex-column">
+        <div>
+            <div class="input-group">
+                <div class="form-outline">
+                    <input id="SearchString" name="searchString" type="search" class="form-control active" value="@ViewBag.CurrentFilter">
+                    <label class="form-label" style="margin-left: 0px;">Search</label>
+                    <div class="form-notch"><div class="form-notch-leading" style="width: 9px;"></div><div class="form-notch-middle" style="width: 47.2px;"></div><div class="form-notch-trailing"></div></div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+}
 <table class="table table-striped">
-    <thead>
+    <thead class="table-primary">
         <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
+            <th>Full Name</th>
+            <th>Username</th>
             <th>Email</th>
-            <th>Roles</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -19,14 +38,28 @@
         @foreach (var user in Model)
         {
             <tr>
-                <td>@user.FirstName</td>
-                <td>@user.LastName</td>
+                <td>@user.FullName</td>
+                <td>@user.UserName</td>
                 <td>@user.Email</td>
-                <td>@string.Join(" , ", user.Roles.ToList())</td>
                 <td>
-                    <a class="btn btn-primary" asp-controller="UserRoles" asp-action="Manage" asp-route-userId="@user.UserId">Manage Roles</a>
+                    <a class="btn btn-primary" asp-controller="UserRoles" asp-action="Manage" asp-route-userId="@user.UserId">Roles</a>
+                    <a class="btn btn-primary" asp-controller="JobExperienceEntries" asp-action="Index" asp-route-userId="@user.UserId">Experience</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+<nav>
+    @Html.PagedListPager(Model, page => Url.Action("index", new { page = page, currentFilter = ViewBag.CurrentFilter }), new PagedListRenderOptions()
+    {
+        ActiveLiElementClass = "active",
+        PageClasses = new[] { "page-link" },
+        LiElementClasses = new[] { "page-item" },
+        UlElementClasses = new[] { "pagination", "justify-content-center", "mt-3" },
+        LinkToNextPageFormat = "Next",
+        LinkToPreviousPageFormat = "Previous",
+        MaximumPageNumbersToDisplay = 5,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always
+    })
+</nav>

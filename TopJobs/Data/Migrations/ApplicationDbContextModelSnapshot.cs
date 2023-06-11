@@ -15,7 +15,7 @@ namespace TopJobs.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.25")
+                .HasAnnotation("ProductVersion", "3.1.32")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -327,6 +327,9 @@ namespace TopJobs.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<bool>("Archived")
+                        .HasColumnType("bit");
+
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
@@ -365,8 +368,14 @@ namespace TopJobs.Data.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("Accepted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("DateApplied")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("MatchingPercentage")
+                        .HasColumnType("int");
 
                     b.HasKey("JobAdId", "UserId");
 

@@ -1,6 +1,5 @@
 {
   "files": {
-    "0.js": "/dist/0.js",
     "main.js": "/dist/main.js",
     "runtime.js": "/dist/runtime.js",
     "vendor.js": "/dist/vendor.js"

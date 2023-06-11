@@ -3,25 +3,40 @@
 @{
     ViewData["Title"] = "Charts";
 }
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet" />
 
 <div class="text-center">
     <h1>Charts</h1>
+    <hr />
 </div>
 
+
+<h3 style="margin-top:80px; text-align:center">Check out the leading technologies among the current job ads</h3>
+
+<div class="card" style="background-color: #f4f4f4; padding:20px; margin-top:10px">
+    @Html.React("Components.PieChartFull", new
+    {
+    num = 7
+    })
+</div>
+<h3 style="text-align:center; margin-top:40px">Compare the trends for any specific technologies</h3>
 <div style="display:flex">
-    <div style="flex:1">
-        @Html.React("Components.PieChartDemo", new
-        {
-        data = "[{ \"name\": \"JavaScript\", \"value\": 192 }," +
-        "{ \"name\": \"Java\", \"value\": 155 }," +
-        "{ \"name\": \"C#\", \"value\": 103 }," +
-        "{ \"name\": \"Python\", \"value\": 100 }]"
-        })
+    <div class="card" style="background-color: #f4f4f4; padding:20px; margin-top:10px">
+        <div style="flex:1">
+            @Html.React("Components.TrendChart", new
+            {
+            data = "[{ \"name\": \"JavaScript\", \"value\": 192 }," +
+            "{ \"name\": \"Java\", \"value\": 155 }," +
+            "{ \"name\": \"C#\", \"value\": 103 }," +
+            "{ \"name\": \"Python\", \"value\": 100 }]"
+            })
+        </div>
     </div>
-    <h3 style="flex:2;margin-left:50px;padding-top:180px" ">
-        Top<input style="display:inline" type="number" id="quantity" name="quantity" min="1" max="15" value="5"> most popular technologies
-    </h3>
 </div>
 
-
+<script src="/dist/runtime.js"></script>
+<script src="/dist/vendor.js"></script>
+<script src="/dist/main.js"></script>
+@Html.ReactInitJavaScript()
 

@@ -45,7 +45,7 @@ namespace TopJobs.Methods
                 }
             }
 
-            float ratio = (float)matchingTechnologies / (float)jobAdPreference.TechnologyPreferences.Count;
+            float ratio = (float)matchingTechnologies / Math.Max((float)jobAdPreference.TechnologyPreferences.Count, 1);
             result += Convert.ToInt32(ratio * 20);
 
             if (jobAdPreference.WorkingHours == null || userPreference.WorkingHours == null || userPreference.WorkingHours == jobAdPreference.WorkingHours)
