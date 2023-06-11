@@ -38,10 +38,13 @@
                                     <a class="nav-link text-dark" asp-controller="JobAds" asp-action="Index">Job Ads</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="JobAds" asp-action="Charts">Charts</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link text-dark" asp-controller="Home" asp-action="Profile" asp-route-userId="@userManager.GetUserAsync(User).Result.Id">Profile</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="JobAds" asp-action="Charts">Charts</a>
+                                    <a class="nav-link text-dark" asp-controller="Preferences" asp-action="Edit" asp-route-id="@userManager.GetUserAsync(User).Result.PreferenceId">Preferences</a>
                                 </li>
                             }
                             else if (User.IsInRole("Admin"))

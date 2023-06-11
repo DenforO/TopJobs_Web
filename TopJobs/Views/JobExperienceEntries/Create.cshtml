@@ -18,14 +18,9 @@
                 <label asp-for="UserId" class="control-label"></label>
                 <input asp-for="UserId" class="form-control" value="@ViewBag.User.Id" />
             </div>
-            @*<div class="form-group">
-            <label asp-for="CompanyId" class="control-label">Company</label>
-            <select asp-for="CompanyId" class="form-control" asp-items="ViewBag.CompanyId"></select>
-            <span asp-validation-for="CompanyId" class="text-danger"></span>
-        </div>*@
-            <div class="form-group">
+            <div class="form-group col">
                 <label class="control-label">Position</label>
-                <input type="text" name="positionTypeName" class="form-control">
+                <input type="text" name="positionTypeName" id="positionTypeName" class="form-control" />
             </div>
             <div class="form-group">
                 <label class="control-label">Position Level</label>
@@ -56,16 +51,16 @@
                 <span asp-validation-for="DateFinished" class="text-danger"></span>
             </div>
             @*<div class="form-group">
-            <label asp-for="PositionTypeId" class="control-label">Position</label>
-            <select asp-for="PositionTypeId" class="form-control" asp-items="ViewBag.PositionTypeId"></select>
-        </div>*@
+                    <label asp-for="PositionTypeId" class="control-label">Position</label>
+                    <select asp-for="PositionTypeId" class="form-control" asp-items="ViewBag.PositionTypeId"></select>
+                </div>*@
             <div class="form-group form-check" style="display:none">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="Verified" /> @Html.DisplayNameFor(model => model.Verified)
                 </label>
             </div>
             <div class="form-group">
-                <input type="submit" value="Add" class="btn btn-primary"  style="margin:20px 0 10px 0" />
+                <input type="submit" value="Add" class="btn btn-primary" style="margin:20px 0 10px 0" />
             </div>
         </form>
     </div>
@@ -108,6 +103,34 @@
                     $("#CompanyId").val(i.item.companyId);
                 },
                 minLength: 3
+            });
+            $("#positionTypeName").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: '/api/companyapi/searchpositions',
+                        headers: {
+                            "RequestVerificationToken":
+                                $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        data: { "term": request.term },
+                        dataType: "json",
+                        success: function (data) {
+                            response($.map(data, function (item) {
+                                return { value: item, label: item };
+                            }))
+                        },
+                        error: function (xhr, textStatus, error) {
+                            alert(xhr.statusText);
+                        },
+                        failure: function (response) {
+                            alert("failure " + response.responseText);
+                        }
+                    });
+                },
+                select: function (e, i) {
+                    $("#PositionTypeName").val(i.item);
+                },
+                minLength: 1
             });
         });
     </script>
