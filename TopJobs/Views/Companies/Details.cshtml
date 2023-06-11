@@ -4,14 +4,13 @@
     ViewData["Title"] = "Details";
 }
 
-
-@if (Model.Logo != null)
-{
-    <img style=" display:inline;width:100px;height:100px; object-fit:cover; border-radius:10px" src="data:image/*;base64,@(Convert.ToBase64String(Model.Logo))">
-}
-
-<h1>@Model.Name</h1>
-
+<div style="display:flex">
+    @if (Model.Logo != null)
+    {
+        <img style="width:100px;height:100px; object-fit:cover; border-radius:10px" src="data:image/*;base64,@(Convert.ToBase64String(Model.Logo))">
+    }
+    <h1 style="margin:auto 0 auto 30px">@Model.Name</h1>
+</div>
 <div>
     <hr />
     <dl class="row">
