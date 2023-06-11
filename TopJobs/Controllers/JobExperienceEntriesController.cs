@@ -150,6 +150,7 @@ namespace TopJobs.Controllers
                 return NotFound();
             }
             ViewBag.PositionTypeName = _context.PositionTypes.Find(jobExperienceEntry.PositionTypeId).Name;
+            ViewBag.CompanyName = _context.Companies.Find(jobExperienceEntry.CompanyId).Name;
             ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", jobExperienceEntry.CompanyId);
             ViewData["PositionTypeId"] = new SelectList(_context.PositionTypes, "Id", "Name", jobExperienceEntry.PositionTypeId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", jobExperienceEntry.UserId);
