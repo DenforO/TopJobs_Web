@@ -3,7 +3,7 @@
 @inject UserManager<ApplicationUser> userManager
 @{
     bool selfProfile = ViewBag.User.Id.Equals(userManager.GetUserAsync(User).Result.Id);
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = $"Experience - {ViewBag.User.UserName}";
 }
 
 <div style="display:flex">

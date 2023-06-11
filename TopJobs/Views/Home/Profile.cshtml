@@ -49,13 +49,11 @@
                             {
                                 <h4 style="margin:20px 0 0 20px">
                                     Tech stack
-                                    @{
-                                        if (selfProfile)
-                                        {
-                                            <button style="margin-left:30px" type="button" class="btn btn-primary" onclick="window.location.href = '../Preferences/Edit/@ViewBag.User.PreferenceId'">
-                                                Change
-                                            </button>
-                                        }
+                                    @if (selfProfile)
+                                    {
+                                        <button style="margin-left:30px" type="button" class="btn btn-primary" onclick="window.location.href = '../Preferences/Edit/@ViewBag.User.PreferenceId'">
+                                            Change
+                                        </button>
                                     }
                                 </h4>
                                 <hr />
@@ -166,7 +164,15 @@
                     <div class="col-md-6">
                         <div class="card mb-4 mb-md-0">
                             <div class="card-body">
-                                <h4 class="text-center">Education</h4><hr />
+                                <h4 class="text-center">
+                                    Education
+                                    @if (selfProfile)
+                                    {
+                                        <button style="margin-left:30px" type="button" class="btn btn-primary" onclick="window.location.href = '../EducationEntries?userId=@ViewBag.User.Id'">
+                                            Change
+                                        </button>
+                                    }
+                                </h4><hr />
                                 @for (int i = 0; i < ViewBag.Education.Count; i++)
                                 {
                                     EducationViewModel entry = ViewBag.Education[i];
