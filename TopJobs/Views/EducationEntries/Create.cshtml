@@ -1,7 +1,7 @@
 ﻿@model TopJobs.Models.EducationEntry
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Add education entry";
 }
 
 <h1>Education</h1>
@@ -11,37 +11,39 @@
 <div class="row">
     <div class="col-md-5">
         <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="row">
-                <div class="form-group col" style="display:none">
-                    <label asp-for="UserId" class="control-label"></label>
-                    <input asp-for="UserId" class="form-control" value="@ViewBag.User.Id" />
+            <div class="card" style="background-color: #efefef; padding: 20px; ">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="form-group col" style="display:none">
+                        <label asp-for="UserId" class="control-label"></label>
+                        <input asp-for="UserId" class="form-control" value="@ViewBag.User.Id" />
+                    </div>
+                    <div class="form-group col">
+                        <label asp-for="EducationTypeId" class="control-label">Education type</label>
+                        <select asp-for="EducationTypeId" class="form-control" asp-items="ViewBag.EducationTypeId"></select>
+                    </div>
+                    <div class="form-group col">
+                        <label asp-for="School" class="control-label"></label>
+                        <input asp-for="School" class="form-control" />
+                        <span asp-validation-for="School" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="form-group col">
-                    <label asp-for="EducationTypeId" class="control-label">Education type</label>
-                    <select asp-for="EducationTypeId" class="form-control" asp-items="ViewBag.EducationTypeId"></select>
+                <div class="form-group" style="margin-top:20px">
+                    <label asp-for="Description" class="control-label"></label>
+                    <input asp-for="Description" maxlength="60" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
-                <div class="form-group col">
-                    <label asp-for="School" class="control-label"></label>
-                    <input asp-for="School" class="form-control" />
-                    <span asp-validation-for="School" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="form-group" style="margin-top:20px">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" maxlength="60" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="row" style="margin-top:20px">
-                <div class="form-group col">
-                    <label asp-for="DateStarted" class="control-label">Started</label>
-                    <input type="date" asp-for="DateStarted" class="form-control" />
-                    <span asp-validation-for="DateStarted" class="text-danger"></span>
-                </div>
-                <div class="form-group col">
-                    <label asp-for="DateFinished" class="control-label">Finnished</label>
-                    <input type="date" asp-for="DateFinished" class="form-control" />
-                    <span asp-validation-for="DateFinished" class="text-danger"></span>
+                <div class="row" style="margin-top:20px">
+                    <div class="form-group col">
+                        <label asp-for="DateStarted" class="control-label">Started</label>
+                        <input type="date" asp-for="DateStarted" class="form-control" />
+                        <span asp-validation-for="DateStarted" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col">
+                        <label asp-for="DateFinished" class="control-label">Finnished</label>
+                        <input type="date" asp-for="DateFinished" class="form-control" />
+                        <span asp-validation-for="DateFinished" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
             <div class="form-group">

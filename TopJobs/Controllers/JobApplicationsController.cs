@@ -55,10 +55,13 @@ namespace TopJobs.Controllers
 
         // GET: JobApplications/Create
         [Authorize(Roles = "Applicant")]
-        public IActionResult Create(int jobAdId)
+        public async Task<IActionResult> Create(int jobAdId)
         {
             ViewData["JobAdId"] = jobAdId;
             var jobAd = _context.JobAds.Find(jobAdId);
+            var user = await GetCurrentUserAsync();
+            bool alreadyApplied = (await _context.JobApplications.FirstOrDefaultAsync(j => j.UserId == user.Id && j.JobAdId == jobAdId)) != null;
+            ViewBag.AlreadyApplied = alreadyApplied;
             ViewData["JobAdName"] = jobAd.Name;
             ViewData["CompanyName"] = _context.Companies.Find(jobAd.CompanyId).Name;
             return View();

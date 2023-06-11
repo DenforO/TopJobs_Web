@@ -13,18 +13,26 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <input asp-for="JobAdId" class ="form-control" style="display:none" value="@ViewBag.JobAdId">
+                <input asp-for="JobAdId" class="form-control" style="display:none" value="@ViewBag.JobAdId">
             </div>
-            <p>Are you sure you want to apply for this job ad?</p>
-            <div class="form-group">
-                <input type="submit" value="Confirm" class="btn btn-primary" />
-            </div>
+            @if (ViewBag.AlreadyApplied)
+            {
+                <p>You have already applied for this job ad.</p>
+                <a class="btn btn-outline-primary" href="../JobAds/Details/@ViewBag.JobAdId">Back</a>
+            }
+            else
+            {
+                <p>Are you sure you want to apply for this job ad?</p>
+                <div class="form-group">
+                    <input type="submit" value="Confirm" class="btn btn-primary" />
+                    <a class="btn btn-outline-primary" href="../JobAds/Details/@ViewBag.JobAdId">Back</a>
+                </div>
+            }
         </form>
     </div>
 </div>
 
 <div style="margin-top:20px">
-    <a href="../JobAds/Details/@ViewBag.JobAdId">Cancel</a>
 </div>
 
 @section Scripts {

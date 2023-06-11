@@ -11,53 +11,55 @@
 <h4>Add new entry</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group" style="display:none">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" value="@ViewBag.User.Id" />
-            </div>
-            <div class="form-group col">
-                <label class="control-label">Position</label>
-                <input type="text" name="positionTypeName" id="positionTypeName" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label class="control-label">Position Level</label>
-                <select name="positionTypeLevel" class="form-control">
-                    <option>-</option>
-                    <option>Intern</option>
-                    <option selected="selected">Junior</option>
-                    <option>Mid</option>
-                    <option>Senior</option>
-                </select>
-            </div>
-            <div class="form-group" style="display:none">
-                <label asp-for="CompanyId" class="control-label">Company</label>
-                <input type="text" asp-for="CompanyId" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label class="control-label">Company</label>
-                <input type="text" id="CompanyName" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label asp-for="DateStarted" class="control-label">Start</label>
-                <input type="date" asp-for="DateStarted" class="form-control" />
-                <span asp-validation-for="DateStarted" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateFinished" class="control-label">End</label>
-                <input type="date" asp-for="DateFinished" class="form-control" />
-                <span asp-validation-for="DateFinished" class="text-danger"></span>
-            </div>
-            @*<div class="form-group">
-                    <label asp-for="PositionTypeId" class="control-label">Position</label>
-                    <select asp-for="PositionTypeId" class="form-control" asp-items="ViewBag.PositionTypeId"></select>
-                </div>*@
-            <div class="form-group form-check" style="display:none">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Verified" /> @Html.DisplayNameFor(model => model.Verified)
-                </label>
+            <div class="card" style="background-color: #efefef; padding: 20px; ">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group" style="display:none">
+                    <label asp-for="UserId" class="control-label"></label>
+                    <input asp-for="UserId" class="form-control" value="@ViewBag.User.Id" />
+                </div>
+                <div class="row">
+                    <div class="form-group col">
+                        <label class="control-label">Position</label>
+                        <input type="text" name="positionTypeName" id="positionTypeName" class="form-control" required />
+                    </div>
+                    <div class="form-group col">
+                        <label class="control-label">Position Level</label>
+                        <select name="positionTypeLevel" class="form-control" required>
+                            <option>-</option>
+                            <option>Intern</option>
+                            <option selected="selected">Junior</option>
+                            <option>Mid</option>
+                            <option>Senior</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="display:none">
+                    <label asp-for="CompanyId" class="control-label">Company</label>
+                    <input type="text" asp-for="CompanyId" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label" style="margin-top:20px">Company</label>
+                    <input type="text" id="CompanyName" class="form-control" />
+                </div>
+                <div class="row" style="margin-top:20px">
+                    <div class="form-group col">
+                        <label asp-for="DateStarted" class="control-label">Start</label>
+                        <input type="date" asp-for="DateStarted" class="form-control" />
+                        <span asp-validation-for="DateStarted" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col">
+                        <label asp-for="DateFinished" class="control-label">End</label>
+                        <input type="date" asp-for="DateFinished" class="form-control" />
+                        <span asp-validation-for="DateFinished" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group form-check" style="display:none">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="Verified" /> @Html.DisplayNameFor(model => model.Verified)
+                    </label>
+                </div>
             </div>
             <div class="form-group">
                 <input type="submit" value="Add" class="btn btn-primary" style="margin:20px 0 10px 0" />
@@ -99,10 +101,13 @@
                         }
                     });
                 },
+                change: function (event, ui) {
+                    $(this).val((ui.item ? ui.item.id : ""));
+                },
                 select: function (e, i) {
                     $("#CompanyId").val(i.item.companyId);
                 },
-                minLength: 3
+                minLength: 2
             });
             $("#positionTypeName").autocomplete({
                 source: function (request, response) {
@@ -129,6 +134,9 @@
                 },
                 select: function (e, i) {
                     $("#PositionTypeName").val(i.item);
+                },
+                change: function (event, ui) {
+                    $(this).val((ui.item ? ui.item.label : ''));
                 },
                 minLength: 1
             });

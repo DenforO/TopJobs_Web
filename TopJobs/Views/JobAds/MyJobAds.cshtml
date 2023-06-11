@@ -4,19 +4,15 @@
     ViewData["Title"] = "Job Ad";
 }
 
-<h1>Job Ads</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div style="display:flex">
+    <h1>Job Ads</h1>
+    <div style="margin:7px 0 0 20px">
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+    </div>
+</div>
 @using (Html.BeginForm("MyJobAds", "JobAds", FormMethod.Get))
 {
-    @*<p>
-            @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
-            <input type="submit" value="Search" />
-        </p>*@
-
-    <section class="w-100 p-4 pb-4 d-flex align-items-baseline flex-column">
+    <section class="w-100 p-4 pb-4 d-flex align-items-center flex-column">
         <div>
             <div class="input-group">
                 <div class="form-outline">
@@ -43,7 +39,7 @@
     </section>
 }
 <table class="table table-striped">
-    <thead>
+    <thead class="table-primary">
         <tr>
             <th>
                 Name
