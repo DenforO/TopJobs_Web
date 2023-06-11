@@ -12,49 +12,53 @@
 <h4>What are you looking for?</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-8">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label class="control-label">Position</label>
-                <input type="text" name="positionTypeName" id="positionTypeName" class="form-control">
+            <div class="row">
+                <div class="form-group col">
+                    <label class="control-label">Position</label>
+                    <input type="text" name="positionTypeName" id="positionTypeName" class="form-control">
+                </div>
+                <div class="form-group col">
+                    <label class="control-label">Position Level</label>
+                    <select name="positionTypeLevel" class="form-control">
+                        <option>-</option>
+                        <option>Intern</option>
+                        <option selected="selected">Junior</option>
+                        <option>Mid</option>
+                        <option>Senior</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label class="control-label">Position Level</label>
-                <select name="positionTypeLevel" class="form-control">
-                    <option>-</option>
-                    <option>Intern</option>
-                    <option selected="selected">Junior</option>
-                    <option>Mid</option>
-                    <option>Senior</option>
-                </select>
+            <div class="row" style="margin-top:30px">
+                <div class="form-group col">
+                    <label asp-for="WorkingHours" class="control-label">Working Hours</label>
+                    <input asp-for="WorkingHours" class="form-control" />
+                    <span asp-validation-for="WorkingHours" class="text-danger"></span>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="FlexibleSchedule" class="control-label">Flexible Schedule</label>
+                    <select asp-for="FlexibleSchedule" class="form-control">
+                        <option></option>
+                        <option value="True">Yes</option>
+                        <option value="False">No</option>
+                    </select>
+                    <span asp-validation-for="FlexibleSchedule" class="text-danger"></span>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="WorkFromHome" class="control-label">Work From Home</label>
+                    <select asp-for="WorkFromHome" class="form-control">
+                        <option></option>
+                        <option value="True">Yes</option>
+                        <option value="False">No</option>
+                    </select>
+                    <span asp-validation-for="WorkFromHome" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="WorkingHours" class="control-label">Working Hours</label>
-                <input asp-for="WorkingHours" class="form-control" />
-                <span asp-validation-for="WorkingHours" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FlexibleSchedule" class="control-label">Flexible Schedule</label>
-                <select asp-for="FlexibleSchedule" class="form-control">
-                    <option></option>
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-                <span asp-validation-for="FlexibleSchedule" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="WorkFromHome" class="control-label">Work From Home</label>
-                <select asp-for="WorkFromHome" class="form-control">
-                    <option></option>
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-                <span asp-validation-for="WorkFromHome" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label" >Preferred technologies</label>
+            <div class="form-group" style="margin-top:30px">
+                <label class="control-label">Preferred technologies</label>
                 <select data-placeholder="Begin typing a name to filter..." multiple class="chosen-select form-control" name="test">
                     <option value=""></option>
                     @foreach (PreferredTechnologiesViewModel technology in ViewBag.Technologies)
@@ -104,9 +108,8 @@
                 <input id="TechnologiesSelected" name="TechnologiesSelected" value="'none'" style="display: none;" />
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" style="margin:40px 0 10px 0" />
             </div>
-
         </form>
     </div>
 </div>
