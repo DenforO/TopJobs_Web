@@ -40,10 +40,12 @@ namespace TopJobs.Controllers
             }
             else if (_userManager.IsInRoleAsync(usr, "Applicant").Result)
             {
-                return RedirectToRoute(new { action = "ApplicantMain", controller = "Home" });
+                //return RedirectToRoute(new { action = "ApplicantMain", controller = "Home" });
+                return RedirectToRoute(new { action = "Profile", controller = "Home", userId = usr.Id });
             }
             else if (_userManager.IsInRoleAsync(usr, "Employer").Result)
             {
+                //return RedirectToRoute(new { action = "EmployerMain", controller = "Home" });
                 return RedirectToRoute(new { action = "EmployerMain", controller = "Home" });
             }
 

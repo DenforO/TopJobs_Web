@@ -205,6 +205,7 @@ export default function TrendChart() {
     if (data != null) {
         return (
             <div>
+                <AutocompleteInput addTechnology={addTechnology} />
                 <LineChart
                     id="test"
                     width={1000}
@@ -228,7 +229,6 @@ export default function TrendChart() {
                         })
                     }
                 </LineChart>
-                <AutocompleteInput addTechnology={addTechnology}/>
             </div>
         );
     }

@@ -75,6 +75,7 @@ namespace TopJobs.Controllers
                 return View("NotFound");
             }
             ViewBag.UserName = user.UserName;
+            ViewBag.User = user;
             var model = new List<ManageUserRolesViewModel>();
             foreach (var role in _roleManager.Roles)
             {

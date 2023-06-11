@@ -127,7 +127,7 @@ function PieChartDemo(props) {
 function Label(props) {
     return (
         <h3 style={{ flex: '2', marginLeft: '50px', paddingTop: '180px' }}>
-            Top <input style={{ display: 'inline' }} type="number" id="quantity" name="quantity" min="1" max="9" value={props.value} onChange={(e) => props.handleChange(e)} /> most popular technologies
+            Top <input style={{ display: 'inline' }} type="number" id="quantity" name="quantity" min="1" max="9" value={props.value} onChange={(e) => props.handleChange(e)} />
         </h3 >
     )
 }

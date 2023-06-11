@@ -7,16 +7,16 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
-<h1>User Roles</h1>
+<h1>Users</h1>
 @using (Html.BeginForm("Index", "UserRoles", FormMethod.Get))
 {
-    <p>
+    <p style="margin:30px 0 30px 0;">
         Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
         <input type="submit" value="Search" />
     </p>
 }
 <table class="table table-striped">
-    <thead>
+    <thead class="table-primary">
         <tr>
             <th>Full Name</th>
             <th>Username</th>
