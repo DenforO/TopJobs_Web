@@ -28,32 +28,23 @@ namespace TopJobs.Controllers
         }
 
         // GET: JobAds
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page = 1)
         {
-            var usr = GetCurrentUserAsync().Result;
-            IIncludableQueryable<JobAd, Technology> jobAds;
-
-            if (_userManager.IsInRoleAsync(GetCurrentUserAsync().Result, "Employer").Result)
+            if (page != null && page < 1)
             {
-                var employerCompanies = GetCompaniesByEmloyer(usr);
-                jobAds = _context.JobAds
-                                        .Include(j => j.Company)
-                                        .Where(j => employerCompanies.Contains(j.Company)) // only employer's job ads
-                                        .Include(j => j.Preference)
-                                        .Include(j => j.Preference.PositionType)
-                                        .Include(j => j.Preference.TechnologyPreferences)
-                                        .ThenInclude(tp => tp.Technology);
+                page = 1;
             }
-            else
-            {
-                jobAds = _context.JobAds
+
+            var usr = GetCurrentUserAsync().Result;
+            var jobAds = _context.JobAds
                                         .Where(j => !j.Archived)
                                         .Include(j => j.Company)
                                         .Include(j => j.Preference)
                                         .Include(j => j.Preference.PositionType)
                                         .Include(j => j.Preference.TechnologyPreferences)
-                                        .ThenInclude(tp => tp.Technology);
-            }
+                                        .ThenInclude(tp => tp.Technology)
+                                        .ToList();
+            
             var userPreference = _context.Preferences
                                             .Include(p => p.PositionType)
                                             .Include(p => p.TechnologyPreferences)
@@ -63,7 +54,8 @@ namespace TopJobs.Controllers
             {
                 jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
             }
-            return View((await jobAds.ToListAsync()).OrderByDescending(j => j.MatchingPercentage));
+            var pageSize = 10;
+            return View(await jobAds.OrderByDescending(j => j.MatchingPercentage).ToPagedListAsync(page ?? 1, pageSize));
         }
         // GET: JobAds/MyJobAds
         public async Task<IActionResult> MyJobAds(string currentFilter, string searchString, bool includeArchived, int? page = 1)

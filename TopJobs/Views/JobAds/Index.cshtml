@@ -1,14 +1,14 @@
-﻿@model IEnumerable<TopJobs.Models.JobAd>
+﻿@model IPagedList<TopJobs.Models.JobAd>
 
 @{
     ViewData["Title"] = "Index";
 }
 
 <h1>Job Ads</h1>
-
-<p>
+<hr />
+@*<p>
     <a asp-action="Create">Create New</a>
-</p>
+</p>*@
 <div class="row row-cols-1 row-cols-md-5 g-4">
     @foreach (var jobAd in Model)
     {
@@ -39,4 +39,17 @@
         </div>
     }
 </div>
-
+<nav>
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, currentFilter = ViewBag.CurrentFilter }), new PagedListRenderOptions()
+    {
+        ActiveLiElementClass = "active",
+        PageClasses = new[] { "page-link" },
+        LiElementClasses = new[] { "page-item" },
+        UlElementClasses = new[] { "pagination", "justify-content-center", "mt-3" },
+        LinkToNextPageFormat = "Next",
+        LinkToPreviousPageFormat = "Previous",
+        MaximumPageNumbersToDisplay = 5,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always
+    })
+</nav>

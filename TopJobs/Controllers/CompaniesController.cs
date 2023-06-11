@@ -26,7 +26,7 @@ namespace TopJobs.Controllers
         }
 
         // GET: Companies
-        public async Task<IActionResult> Index(string currentFilter, string searchString, bool includeArchived, int? page = 1)
+        public async Task<IActionResult> Index(string currentFilter, string searchString, int? page = 1)
         {
             if (page != null && page < 1)
             {
