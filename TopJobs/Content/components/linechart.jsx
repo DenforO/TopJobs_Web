@@ -106,6 +106,18 @@ const getRandomColor = () => {
     return color;
 }
 
+const getTechnologyColor = (name) => {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    while (name.length < 6) {
+        name += name;
+    }
+    for (var i = 0; i < 6; i++) {
+        color += letters[(name.charCodeAt(i) + ((i + 1) * 2)) % 16];
+    }
+    return color;
+}
+
 const colors = ['#4287f5', '#15d11e', '#e03b16', '#f431f7', '#f2de02', '#288a15', '#5a0c8a', '#2af3fa', '#8a1e08', '#031c80']
 
 function Button(props) {
@@ -149,8 +161,8 @@ function AutocompleteInput(props) {
                 defaultValue={[allTechnologies[0], allTechnologies[1]]}
                 isMulti
                 options={allTechnologies}
-                isOptionDisabled={(choice) => choice >= 10}
-                onChange={(choice) => props.addTechnology(choice)}
+                isOptionDisabled={(choice) => selectedTechnologies >= 8}
+                onChange={(choice) => { setSelectedTechnologies(choice); props.addTechnology(choice) }}
             />
         )
     }
@@ -187,15 +199,6 @@ export default function TrendChart() {
             })
     }
 
-    const addColor = () => {
-        technologies.forEach((technology) => {
-            if (colors) {
-
-            }
-            setColors([...colors, { tech: technology[1], color: getRandomColor() }])
-        })
-    }
-
     useEffect(() => {
         fetchData()
     }, [technologies])
@@ -221,19 +224,10 @@ export default function TrendChart() {
                     <Legend />
                     {
                         technologies.map((technology) => {
-                            return (<Line stroke={colors[technology['label']]} type="monotone" key={`line_${technology['label']}`} dataKey={`${technology['label']}`} />)
+                            return (<Line stroke={getTechnologyColor(technology['label'])} type="monotone" key={`line_${technology['label']}`} dataKey={`${technology['label']}`} />)
                         })
                     }
-                    {/*<Line*/}
-                    {/*    type="monotone"*/}
-                    {/*    dataKey={technologies[0]}*/}
-                    {/*    stroke="#8884d8"*/}
-                    {/*    activeDot={{ r: 8 }}*/}
-                    {/*    animationDuration={5000}*/}
-                    {/*/>*/}
-                    {/*<Line type="monotone" dataKey={technologies[1]} stroke="#82ca9d" />*/}
                 </LineChart>
-                <Input addTechnology={addTechnology} />
                 <AutocompleteInput addTechnology={addTechnology}/>
             </div>
         );
