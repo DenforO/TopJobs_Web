@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using TopJobs.Data;
+using TopJobs.Models;
 using TopJobs.Models.ChartData;
 
 namespace TopJobs.Services
@@ -16,6 +17,7 @@ namespace TopJobs.Services
     {
         List<TechnologyPopularity> GetTechnologyPopularities(int numOfTechnologies);
         List<Dictionary<string, object>> GetTechnologyTrends(DateTime startDate, DateTime endDate, params int[] techIds);
+        List<TechnologySelectOption> GetTechnologies();
     }
     public class TrendsService : ITrendsService
     {
@@ -26,6 +28,12 @@ namespace TopJobs.Services
             _cache = cache;
             _context = context;
         }
+
+        public List<TechnologySelectOption> GetTechnologies()
+        {
+            return _context.Technologies.Select(t => new TechnologySelectOption { Value = t.Id, Label = t.Name}).ToList();
+        }
+
         public List<TechnologyPopularity> GetTechnologyPopularities(int numOfTechnologies)
         {
             var technologyPopularities = (from t in _context.Technologies

@@ -1,4 +1,6 @@
 ﻿import React, { useCallback, useState, useEffect } from "react";
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
 import {
     LineChart,
     Line,
@@ -8,6 +10,14 @@ import {
     Tooltip,
     Legend
 } from "recharts";
+
+const animatedComponents = makeAnimated();
+
+const technologyArray = [
+    { value: 8, label: 'CSS' },
+    { value: 9, label: 'React.js' },
+    { value: 10, label: 'Vue.js' }
+]
 
 const dataJson = [
     {
@@ -96,6 +106,8 @@ const getRandomColor = () => {
     return color;
 }
 
+const colors = ['#4287f5', '#15d11e', '#e03b16', '#f431f7', '#f2de02', '#288a15', '#5a0c8a', '#2af3fa', '#8a1e08', '#031c80']
+
 function Button(props) {
     return (
         <button onClick={props.onClickFunction}>Add</button>
@@ -104,7 +116,7 @@ function Button(props) {
 
 function Input(props) {
     const [inputValue, setInputValue] = useState(['8', 'CSS']);
-    
+
     return (
         <div>
             <input type="text" onKeyUp={(e) => setInputValue(e.target.value.split(','))} />
@@ -113,20 +125,58 @@ function Input(props) {
     )
 }
 
+function AutocompleteInput(props) {
+    const [allTechnologies, setAllTechnologies] = useState([]);
+    const [selectedTechnologies, setSelectedTechnologies] = useState([]);
+    const fetchData = () => {
+        fetch(window.location.origin + "/api/Trends/technologies")
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                setAllTechnologies(data)
+            })
+    }
+    useEffect(() => {
+        fetchData()
+    }, [])
+    if (allTechnologies.length > 0) {
+        console.log(allTechnologies);
+        return (
+            <Select
+                closeMenuOnSelect={true}
+                components={animatedComponents}
+                defaultValue={[allTechnologies[0], allTechnologies[1]]}
+                isMulti
+                options={allTechnologies}
+                isOptionDisabled={(choice) => choice >= 10}
+                onChange={(choice) => props.addTechnology(choice)}
+            />
+        )
+    }
+    else {
+        return null;
+    }
+}
+
 export default function TrendChart() {
     const [data, setData] = useState();
-    const [technologies, setTechnologies] = useState([['1', 'C#'], ['2', 'C++'], ['3', 'C'], ['4', 'Python']]);
+    const [technologies, setTechnologies] = useState([{ value: '1', label: 'C#' }, { value: '2', label: 'C++' }]);
+    const [colors, setColors] = useState([]);
 
     const addTechnology = (tech) => {
-        setTechnologies([
-            ...technologies,
-            [tech[0], tech[1]]
-        ]);
+        console.log('tech');
+        console.log(tech);
+        setTechnologies(
+            tech
+        );
     }
 
     const fetchData = () => {
         let queryParameters = "";
-        technologies.forEach(technology => queryParameters += ("techId=" + technology[0] + "&"));
+        console.log("technologies in fetch data")
+        console.log(technologies)
+        technologies.forEach(technology => queryParameters += ("techId=" + technology['value'] + "&"));
         console.log(queryParameters)
         fetch(window.location.origin + "/api/Trends/TechnologyTrend?" + queryParameters)
             .then(response => {
@@ -137,10 +187,18 @@ export default function TrendChart() {
             })
     }
 
+    const addColor = () => {
+        technologies.forEach((technology) => {
+            if (colors) {
+
+            }
+            setColors([...colors, { tech: technology[1], color: getRandomColor() }])
+        })
+    }
+
     useEffect(() => {
         fetchData()
     }, [technologies])
-
     if (data != null) {
         return (
             <div>
@@ -163,7 +221,7 @@ export default function TrendChart() {
                     <Legend />
                     {
                         technologies.map((technology) => {
-                            return (<Line stroke={getRandomColor()} type="monotone" key={`line_${technology[1]}`} dataKey={`${technology[1]}`} />)
+                            return (<Line stroke={colors[technology['label']]} type="monotone" key={`line_${technology['label']}`} dataKey={`${technology['label']}`} />)
                         })
                     }
                     {/*<Line*/}
@@ -176,8 +234,10 @@ export default function TrendChart() {
                     {/*<Line type="monotone" dataKey={technologies[1]} stroke="#82ca9d" />*/}
                 </LineChart>
                 <Input addTechnology={addTechnology} />
+                <AutocompleteInput addTechnology={addTechnology}/>
             </div>
         );
     }
+    console.log('returned null')
     return null; //if line chart gets rendered before data is fetched, animation gets broken
 }
