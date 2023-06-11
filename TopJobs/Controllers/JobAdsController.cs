@@ -63,7 +63,7 @@ namespace TopJobs.Controllers
             {
                 jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
             }
-            return View(await jobAds.ToListAsync());
+            return View((await jobAds.ToListAsync()).OrderByDescending(j => j.MatchingPercentage));
         }
         // GET: JobAds/MyJobAds
         public async Task<IActionResult> MyJobAds(string currentFilter, string searchString, bool includeArchived, int? page = 1)
