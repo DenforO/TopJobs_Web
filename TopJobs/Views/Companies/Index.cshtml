@@ -53,7 +53,7 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">@company.Name</h5>
-                        <p class="card-text">@company.Description</p>
+                        <p class="card-text" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">@company.Description</p>
                     </div>
                     @if (User.IsInRole("Admin"))
                     {
