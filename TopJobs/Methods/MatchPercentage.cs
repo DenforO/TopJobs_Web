@@ -1,13 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using TopJobs.Enums;
 using TopJobs.Models;
 
 namespace TopJobs.Methods
 {
     public static class MatchPercentage
     {
+        public static int Calculate(ApplicationUser user, JobAd jobAd, string level)
+        {
+            IWeights weights;
+
+            switch (level)
+            {
+                case "Intern":
+                    weights = new InternWeights();
+                    break;
+                case "Junior":
+                    weights = new JuniorWeights();
+                    break;
+                case "Senior":
+                    weights = new SeniorWeights();
+                    break;
+                case "Mid":
+                default:
+                    weights = new MidWeights();
+                    break;
+            }
+
+            double result = 0;
+            result += weights.Position * PositionMatch(user.Preference.PositionType, jobAd.Preference.PositionType);
+            result += weights.TechStack * TechStackMatch(user.Preference.TechnologyPreferences, jobAd.Preference.TechnologyPreferences);
+            result += weights.Experience * ExperienceMatch(GetUserExperience(user), jobAd.Preference.WorkingHours ?? 8);
+            result += weights.Education * EducationMatch(user.EducationEntries);
+            result += weights.FlexibleSchedule * PreferenceMatch(user.Preference.FlexibleSchedule ?? false, jobAd.Preference.FlexibleSchedule ?? false);
+            result += weights.WorkFromHome * PreferenceMatch(user.Preference.WorkFromHome ?? false, jobAd.Preference.WorkFromHome ?? false);
+            result += weights.WorkingHours * WorkingHoursMatch(user.Preference.WorkingHours ?? 8, jobAd.Preference.WorkingHours ?? 8);
+            return Convert.ToInt32(result);
+        }
         public static int CalculateMatchPercentage(Preference userPreference, Preference jobAdPreference)
         {
             int result = 0;
@@ -63,6 +96,126 @@ namespace TopJobs.Methods
             
 
             return result;
+        }
+
+        private static double PositionMatch(PositionType userPositionType, PositionType adPositionType)
+        {
+            double result = 0;
+
+            if (userPositionType.Name.Equals(adPositionType.Name))
+            {
+                result += 0.7;
+            }
+            if (userPositionType.Level.Equals(adPositionType.Level))
+            {
+                result += 0.3;
+            }
+
+            return result;
+        }
+
+        private static double TechStackMatch(ICollection<TechnologyPreference> userTechStack, ICollection<TechnologyPreference> adTechStack)
+        {
+            var matchinTechnolgoies = userTechStack
+                                            .Join(adTechStack, 
+                                                  u => u.TechnologyId,
+                                                  a => a.TechnologyId, 
+                                                  (u, a) => u);
+            if (matchinTechnolgoies.Count() == 0)
+            {
+                return 0;
+            }
+            return adTechStack.Count / matchinTechnolgoies.Count();
+        }
+
+        private static double ExperienceMatch(int userExperience, int adExperience)
+        {
+            if (userExperience < adExperience)
+            {
+                return 0;
+            }
+
+            var difference = userExperience - adExperience;
+            if (difference < adExperience / 2)
+            {
+                return 1;
+            }
+
+            var result = 1 - (difference / adExperience - 0.5) * 2; // loses percentage if overqualififed
+            return Math.Max(result, 0);
+        }
+
+        private static double EducationMatch(ICollection<EducationEntry> userEducationEntries)
+        {
+            double result = 0;
+            foreach (var entry in userEducationEntries)
+            {
+                switch (entry.EducationType.Name)
+                {
+                    case "Bachelors' degree":
+                    case "Master's degree":
+                        result += 0.1; 
+                        if (entry.DateFinished.HasValue)
+                        {
+                            result += 0.2;
+                        }
+                        break;
+                    case "Course":
+                    case "Bootcamp":
+                        result += 0.03;
+                        break;
+                    case "Academy":
+                        result += 0.03 * NumberOfMonthsBetween(entry.DateFinished ?? DateTime.Today, entry.DateStarted);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return result;
+        }
+        private static double PreferenceMatch(bool userRequires, bool adOffers)
+        {
+            // For flexible schedule and work from home
+
+            return Convert.ToDouble(!userRequires | adOffers);
+        }
+        private static double LocationMatch(string userCity, string adCity, bool adOffersWorkFromHome)
+        {
+            if (string.IsNullOrEmpty(userCity))
+            {
+                return 0.5;
+            }
+            return Convert.ToDouble(userCity.Equals(adCity) || adOffersWorkFromHome);
+        }
+        private static double WorkingHoursMatch(int userHours, int adHours)
+        {
+            return Math.Max(1 - Math.Abs(userHours - adHours) * 0.25, 0);
+        }
+        private static int GetUserExperience(ApplicationUser user)
+        {
+            int experienceInMonths = 0;
+
+            foreach (var entry in user.JobExperienceEntries)
+            {
+                var startDate = entry.DateStarted;
+                var endDate = entry.DateFinished ?? DateTime.Today;
+
+                experienceInMonths += NumberOfMonthsBetween(endDate, startDate);
+            }
+
+            var experienceInYears = experienceInMonths / 12 + (experienceInMonths % 12) / 6;
+            return experienceInYears;
+        }
+        private static int NumberOfMonthsBetween(DateTime endDate, DateTime startDate)
+        {
+            if (startDate > endDate) // in case of mistake in input
+            {
+                var temp = endDate;
+                endDate = startDate;
+                startDate = temp;
+            }
+
+            return ((endDate.Year - startDate.Year) * 12) + endDate.Month - startDate.Month;
         }
     }
 }
