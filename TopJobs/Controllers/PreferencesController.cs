@@ -128,7 +128,7 @@ namespace TopJobs.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,PositionTypeId,WorkingHours,FlexibleSchedule,WorkFromHome")] Preference preference, string positionTypeName, string positionTypeLevel, string TechnologiesSelected)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,WorkingHours,FlexibleSchedule,WorkFromHome")] Preference preference, string positionTypeName, string positionTypeLevel, string TechnologiesSelected)
         {
             if (id != preference.Id)
             {
@@ -152,13 +152,11 @@ namespace TopJobs.Controllers
                     
                     var oldTechnologyPreferences = _context.TechnologyPreferences.Where(x => x.PreferenceId == id);
                     _context.TechnologyPreferences.RemoveRange(oldTechnologyPreferences);
-                    await _context.SaveChangesAsync();
 
                     foreach (var technology in technologyNames)
                     {
                         int technologyId = _context.Technologies.Where(x => x.Name == technology).First().Id;
                         _context.TechnologyPreferences.Add(new TechnologyPreference { PreferenceId = id, TechnologyId = technologyId });
-                        await _context.SaveChangesAsync();
                     }
 
                     _context.Update(preference);

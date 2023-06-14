@@ -34,12 +34,13 @@ namespace TopJobs.Methods
             double result = 0;
             result += weights.Position * PositionMatch(user.Preference.PositionType, jobAd.Preference.PositionType);
             result += weights.TechStack * TechStackMatch(user.Preference.TechnologyPreferences, jobAd.Preference.TechnologyPreferences);
-            result += weights.Experience * ExperienceMatch(GetUserExperience(user), jobAd.Preference.WorkingHours ?? 8);
+            result += weights.Experience * ExperienceMatch(GetUserExperience(user), Convert.ToInt32(jobAd.RequiredExperience));
             result += weights.Education * EducationMatch(user.EducationEntries);
             result += weights.FlexibleSchedule * PreferenceMatch(user.Preference.FlexibleSchedule ?? false, jobAd.Preference.FlexibleSchedule ?? false);
             result += weights.WorkFromHome * PreferenceMatch(user.Preference.WorkFromHome ?? false, jobAd.Preference.WorkFromHome ?? false);
+            result += weights.Location * LocationMatch(user.City, jobAd.Company.City, jobAd.Preference.WorkFromHome ?? true);
             result += weights.WorkingHours * WorkingHoursMatch(user.Preference.WorkingHours ?? 8, jobAd.Preference.WorkingHours ?? 8);
-            return Convert.ToInt32(result);
+            return Convert.ToInt32(result * 100);
         }
         public static int CalculateMatchPercentage(Preference userPreference, Preference jobAdPreference)
         {
@@ -106,7 +107,7 @@ namespace TopJobs.Methods
             {
                 result += 0.7;
             }
-            if (userPositionType.Level.Equals(adPositionType.Level))
+            if (userPositionType.Level.Equals(adPositionType.Level) || adPositionType.Level == null || userPositionType == null)
             {
                 result += 0.3;
             }
@@ -125,7 +126,7 @@ namespace TopJobs.Methods
             {
                 return 0;
             }
-            return adTechStack.Count / matchinTechnolgoies.Count();
+            return (float)matchinTechnolgoies.Count() / adTechStack.Count;
         }
 
         private static double ExperienceMatch(int userExperience, int adExperience)
@@ -135,7 +136,11 @@ namespace TopJobs.Methods
                 return 0;
             }
 
-            var difference = userExperience - adExperience;
+            if (adExperience == 0)
+            {
+                adExperience += 1;
+            }
+            float difference = userExperience - adExperience;
             if (difference < adExperience / 2)
             {
                 return 1;
@@ -152,7 +157,7 @@ namespace TopJobs.Methods
             {
                 switch (entry.EducationType.Name)
                 {
-                    case "Bachelors' degree":
+                    case "Bachelor's degree":
                     case "Master's degree":
                         result += 0.1; 
                         if (entry.DateFinished.HasValue)
@@ -181,6 +186,10 @@ namespace TopJobs.Methods
         }
         private static double LocationMatch(string userCity, string adCity, bool adOffersWorkFromHome)
         {
+            if (adOffersWorkFromHome)
+            {
+                return 1;
+            }
             if (string.IsNullOrEmpty(userCity))
             {
                 return 0.5;
