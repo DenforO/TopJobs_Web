@@ -35,24 +35,34 @@ namespace TopJobs.Controllers
                 page = 1;
             }
 
-            var usr = GetCurrentUserAsync().Result;
+            var userId = (await GetCurrentUserAsync()).Id;
+            var user = _context.Users
+                                    .Include(u => u.JobExperienceEntries)
+                                    .Include(u => u.EducationEntries)
+                                        .ThenInclude(e => e.EducationType)
+                                    .Include(u => u.Preference)
+                                        .ThenInclude(p => p.TechnologyPreferences)
+                                    .Include(u => u.Preference)
+                                        .ThenInclude(p => p.PositionType)
+                                    .FirstOrDefault(u => u.Id == userId);
             var jobAds = _context.JobAds
                                         .Where(j => !j.Archived)
                                         .Include(j => j.Company)
                                         .Include(j => j.Preference)
-                                        .Include(j => j.Preference.PositionType)
-                                        .Include(j => j.Preference.TechnologyPreferences)
-                                        .ThenInclude(tp => tp.Technology)
+                                            .ThenInclude(p => p.PositionType)
+                                        .Include(j => j.Preference)
+                                            .ThenInclude(p => p.TechnologyPreferences)
                                         .ToList();
             
-            var userPreference = _context.Preferences
-                                            .Include(p => p.PositionType)
-                                            .Include(p => p.TechnologyPreferences)
-                                            .ThenInclude(tp => tp.Technology)
-                                            .FirstOrDefault(x => x.Id == usr.PreferenceId);
+            //var userPreference = _context.Preferences
+            //                                .Include(p => p.PositionType)
+            //                                .Include(p => p.TechnologyPreferences)
+            //                                .ThenInclude(tp => tp.Technology)
+            //                                .FirstOrDefault(x => x.Id == usr.PreferenceId);
             foreach (var jobAd in jobAds)
             {
-                jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
+                //jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
+                jobAd.MatchingPercentage = MatchPercentage.Calculate(user, jobAd, user.Preference.PositionType.Level);
             }
             var pageSize = 10;
             return View(await jobAds.OrderByDescending(j => j.MatchingPercentage).ToPagedListAsync(page ?? 1, pageSize));
