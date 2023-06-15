@@ -86,16 +86,28 @@ namespace TopJobs.Controllers
             ViewBag.CurrentFilter = searchString;
             ViewBag.IncludeArchived = includeArchived;
             var usr = await GetCurrentUserAsync();
+
+            var user = _context.Users
+                        .Include(u => u.JobExperienceEntries)
+                        .Include(u => u.EducationEntries)
+                            .ThenInclude(e => e.EducationType)
+                        .Include(u => u.Preference)
+                            .ThenInclude(p => p.TechnologyPreferences)
+                        .Include(u => u.Preference)
+                            .ThenInclude(p => p.PositionType)
+                        .FirstOrDefault(u => u.Id == usr.Id);
+
             var employerCompanies = GetCompaniesByEmloyer(usr);
             var jobAds = _context.JobAds
                                     .Include(j => j.Company)
                                     .Where(j => (!j.Archived | includeArchived) && employerCompanies.Contains(j.Company)) // only employer's job ads
                                     .Include(j => j.JobApplications)
-                                    .ThenInclude(a => a.User)
+                                        .ThenInclude(a => a.User)
                                     .Include(j => j.Preference)
-                                    .Include(j => j.Preference.PositionType)
-                                    .Include(j => j.Preference.TechnologyPreferences)
-                                    .ThenInclude(tp => tp.Technology)
+                                        .ThenInclude(p => p.PositionType)
+                                    //.Include(j => j.Preference.PositionType)
+                                    .Include(j => j.Preference)
+                                        .ThenInclude(p => p.TechnologyPreferences)
                                     .OrderByDescending(j => j.Archived)
                                     .ThenBy(j => j.DateSubmitted)
                                     .AsQueryable();
@@ -113,7 +125,7 @@ namespace TopJobs.Controllers
                                             .FirstOrDefault(x => x.Id == usr.PreferenceId);
             foreach (var jobAd in jobAds)
             {
-                jobAd.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(userPreference, jobAd.Preference);
+                jobAd.MatchingPercentage = MatchPercentage.Calculate(user, jobAd, jobAd.Preference.PositionType.Level);
             }
             var pageSize = 5;
             return View(await jobAds.ToPagedListAsync(page ?? 1, pageSize));
@@ -336,25 +348,51 @@ namespace TopJobs.Controllers
                 return NotFound();
             }
 
-            var candidates = await _context.JobApplications
-                .Where(j => j.JobAdId == jobAdId)
-                .Include(j => j.JobAd)
-                    .ThenInclude(a => a.Preference)
-                        .ThenInclude(p => p.TechnologyPreferences)
-                            .ThenInclude(tp => tp.Technology)
-                .Include(j => j.JobAd)
-                    .ThenInclude(a => a.Preference)
-                        .ThenInclude(p => p.PositionType)
-                .Include(j => j.User)
-                    .ThenInclude(u => u.Preference)
-                        .ThenInclude(p => p.TechnologyPreferences)
-                            .ThenInclude(tp => tp.Technology)
-                .Include(j => j.User)
-                    .ThenInclude(u => u.Preference)
-                        .ThenInclude(p => p.PositionType)
-                .Select(j => new CandidateViewModel(j))
-                .ToListAsync();
+            //var candidates = await _context.JobApplications
+            //    .Where(j => j.JobAdId == jobAdId)
+            //    .Include(j => j.JobAd)
+            //        .ThenInclude(a => a.Preference)
+            //            .ThenInclude(p => p.TechnologyPreferences)
+            //    .Include(j => j.JobAd)
+            //        .ThenInclude(a => a.Preference)
+            //            .ThenInclude(p => p.PositionType)
+            //    .Include(j => j.JobAd)
+            //        .ThenInclude(a => a.Company)
+            //    .Include(j => j.User)
+            //        .ThenInclude(u => u.Preference)
+            //            .ThenInclude(p => p.TechnologyPreferences)
+            //    .Include(j => j.User)
+            //        .ThenInclude(u => u.Preference)
+            //            .ThenInclude(p => p.PositionType)
+            //    .Include(j => j.User)
+            //        .ThenInclude(u => u.EducationEntries)
+            //    .Include(j => j.User)
+            //        .ThenInclude(u => u.JobExperienceEntries)
+            //    .Select(j => new CandidateViewModel(j.User, j.JobAd, j))
+            //    .ToListAsync();
 
+            var jobApplications = _context.JobApplications.Where(j => j.JobAdId == jobAdId);
+            List<CandidateViewModel> candidates = new List<CandidateViewModel>();
+            var users = _context.Users
+                                    .Include(u => u.JobExperienceEntries)
+                                    .Include(u => u.EducationEntries)
+                                        .ThenInclude(e => e.EducationType)
+                                    .Include(u => u.Preference)
+                                        .ThenInclude(u => u.PositionType)
+                                    .Include(u => u.Preference)
+                                        .ThenInclude(u => u.TechnologyPreferences);
+            var jobAds = _context.JobAds
+                                    .Where(j => j.Id == jobAdId)
+                                    .Include(a => a.Company)
+                                    .Include(a => a.Preference)
+                                        .ThenInclude(a => a.PositionType)
+                                    .Include(a => a.Preference)
+                                        .ThenInclude(a => a.TechnologyPreferences);
+
+            foreach (var application in jobApplications)
+            {
+                candidates.Add(new CandidateViewModel(users.First(u => u.Id == application.UserId), jobAds.First(a => a.Id == application.JobAdId), application));
+            }
 
             if (candidates == null)
             {

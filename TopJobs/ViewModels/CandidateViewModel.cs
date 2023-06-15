@@ -11,10 +11,16 @@ namespace TopJobs.ViewModels
     {
         public JobApplication JobApplication { get; set; }
         public string Match { get; set; }
-        public CandidateViewModel(JobApplication jobApplication)
+        //public CandidateViewModel(JobApplication jobApplication)
+        //{
+        //    JobApplication = jobApplication;
+        //    Match = MatchPercentage.CalculateMatchPercentage(jobApplication.User.Preference, jobApplication.JobAd.Preference) + "%";
+        //}
+
+        public CandidateViewModel(ApplicationUser user, JobAd jobAd, JobApplication jobApplication)
         {
             JobApplication = jobApplication;
-            Match = MatchPercentage.CalculateMatchPercentage(jobApplication.User.Preference, jobApplication.JobAd.Preference) + "%";
+            Match = MatchPercentage.Calculate(user, jobAd, jobAd.Preference.PositionType.Level) + "%";
         }
     }
 }

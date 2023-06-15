@@ -72,7 +72,7 @@ namespace TopJobs.Controllers
                                                         .Include(x => x.User)
                                                         .Include(x => x.JobAd)
                                                         .SingleOrDefault(x => x.JobAd.PreferenceId == preference.Id);
-                jobApplication.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(jobApplication.User.Preference, jobApplication.JobAd.Preference);
+                //jobApplication.MatchingPercentage = MatchPercentage.CalculateMatchPercentage(jobApplication.User.Preference, jobApplication.JobAd.Preference);
                 _context.Update(jobApplication);
 
                 await _context.SaveChangesAsync();
