@@ -54,23 +54,5 @@ namespace TopJobs.Controllers
         {
             return _trendsService.GetTechnologyPopularities(num);
         }
-
-        // POST api/<ChartController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<ChartController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<ChartController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }
