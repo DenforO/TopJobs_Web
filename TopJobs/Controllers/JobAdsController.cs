@@ -53,7 +53,7 @@ namespace TopJobs.Controllers
                                         .Include(j => j.Preference)
                                             .ThenInclude(p => p.TechnologyPreferences)
                                         .ToList();
-            
+
             //var userPreference = _context.Preferences
             //                                .Include(p => p.PositionType)
             //                                .Include(p => p.TechnologyPreferences)
@@ -201,17 +201,17 @@ namespace TopJobs.Controllers
         }
 
         // POST: JobAds/Accept/5
-        [HttpPost, ActionName("Archive")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Archive(int jobAdId)
-        {
-            var jobAd = await _context.JobAds.FindAsync(jobAdId);
+        //[HttpPost, ActionName("Archive")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Archive(int jobAdId)
+        //{
+        //    var jobAd = await _context.JobAds.FindAsync(jobAdId);
 
-            jobAd.Archived = true;
-            await _context.SaveChangesAsync();
+        //    jobAd.Archived = true;
+        //    await _context.SaveChangesAsync();
 
-            return RedirectToRoute(new { action = "MyJobAds", controller = "JobAds", jobAdId = jobAdId });
-        }
+        //    return RedirectToRoute(new { action = "MyJobAds", controller = "JobAds", jobAdId = jobAdId });
+        //}
 
         // GET: JobAds/Create
         [Authorize(Roles = "Employer")]
@@ -400,6 +400,17 @@ namespace TopJobs.Controllers
             }
 
             return View(candidates);
+        }
+
+        [HttpPost, ActionName("Archive")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Archive(int jobAdId)
+        {
+            var jobAd = await _context.JobAds.FindAsync(jobAdId);
+            jobAd.Archived = true;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(MyJobAds));
         }
 
         private bool JobAdExists(int id)

@@ -201,7 +201,7 @@ namespace TopJobs.Controllers
             await _context.SaveChangesAsync();
 
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("TopJobs", "test_app_23@outlook.com"));
+            message.From.Add(new MailboxAddress("TopJobs", "top_jobs_app@outlook.com"));
             message.To.Add(new MailboxAddress(jobApplication.User.FullName, jobApplication.User.Email));
             message.Subject = "Job application accepted";
             message.Body = new TextPart("plain")
@@ -212,7 +212,7 @@ namespace TopJobs.Controllers
             using (var client = new SmtpClient())
             {
                 client.Connect("smtp-mail.outlook.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                client.Authenticate("test_app_23@outlook.com", "@pPT35t;3202");
+                client.Authenticate("top_jobs_app@outlook.com", "78@pA5T;35t;K228");
                 client.Send(message);
                 client.Disconnect(true);
             }
