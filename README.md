@@ -114,7 +114,7 @@ Each criterion's fulfillment varies between 0% and 100%:
 
   ![Table with examples for flexible schedule match](https://github.com/DenforO/TopJobs_Web/blob/main/docs/MatchExample_flexible.png)
 
-- **Working hours** - 1 - Equals | (candidate's preferred working hours) - (job ad's working hours) | * 0.25
+- **Working hours** - Fulfillment percentage equals 1 - | (candidate's preferred working hours) - (job ad's working hours) | * 0.25
 
   ![Table with examples for working hours match](https://github.com/DenforO/TopJobs_Web/blob/main/docs/MatchExample_workingHours.png)
 
